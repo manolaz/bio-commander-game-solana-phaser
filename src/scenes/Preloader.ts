@@ -74,57 +74,57 @@ export class Preloader extends Scene {
     }
 
     private loadAssets() {
-        // Load sprites
-        this.load.image('dude', 'assets/dude.png');
-        this.load.image('platform', 'assets/platform.png');
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('star', 'assets/star.png');
-        this.load.image('bg', 'assets/bg.png');
-        this.load.image('logo', 'assets/logo.png');
+        // Load sprites from public/assets
+        this.load.image('dude', '/assets/dude.png');
+        this.load.image('platform', '/assets/platform.png');
+        this.load.image('sky', '/assets/sky.png');
+        this.load.image('star', '/assets/star.png');
+        this.load.image('bg', '/assets/bg.png');
+        this.load.image('logo', '/assets/logo.png');
 
-        // Load hero sprites
-        this.load.image('hero1', 'assets/hero/T_CELL/SVG_hero/hero1.svg');
-        this.load.image('hero2', 'assets/hero/T_CELL/SVG_hero/hero2.svg');
-        this.load.image('hero3', 'assets/hero/T_CELL/SVG_hero/hero3.svg');
-        this.load.image('hero4', 'assets/hero/T_CELL/SVG_hero/hero4.svg');
-        this.load.image('hero5', 'assets/hero/T_CELL/SVG_hero/hero5.svg');
+        // Load hero sprites from assets directory
+        this.load.image('hero1', '/assets/hero/T_CELL/SVG_hero/hero1.svg');
+        this.load.image('hero2', '/assets/hero/T_CELL/SVG_hero/hero2.svg');
+        this.load.image('hero3', '/assets/hero/T_CELL/SVG_hero/hero3.svg');
+        this.load.image('hero4', '/assets/hero/T_CELL/SVG_hero/hero4.svg');
+        this.load.image('hero5', '/assets/hero/T_CELL/SVG_hero/hero5.svg');
 
         // Load weapon sprites
-        this.load.image('sword', 'assets/hero/duel_sword/sword.svg');
-        this.load.image('gun', 'assets/hero/dual_gun/gun.svg');
-        this.load.image('shield', 'assets/hero/sword_shield/shield.svg');
-        this.load.image('dual_gun', 'assets/hero/dual_gun/dual_gun.svg');
+        this.load.image('sword', '/assets/hero/duel_sword/sword.svg');
+        this.load.image('gun', '/assets/hero/dual_gun/gun.svg');
+        this.load.image('shield', '/assets/hero/sword_shield/shield.svg');
+        this.load.image('dual_gun', '/assets/hero/dual_gun/dual_gun.svg');
 
         // Load enemy sprites
-        this.load.image('virus1', 'assets/ennemy/virus/virus1.svg');
-        this.load.image('virus2', 'assets/ennemy/virus/virus2.svg');
-        this.load.image('bacteria1', 'assets/ennemy/bacteria/bacteria1.svg');
-        this.load.image('bacteria2', 'assets/ennemy/bacteria/bacteria2.svg');
-        this.load.image('fungi1', 'assets/ennemy/fungis/fungi1.svg');
-        this.load.image('fungi2', 'assets/ennemy/fungis/fungi2.svg');
+        this.load.image('virus1', '/assets/ennemy/virus/virus1.svg');
+        this.load.image('virus2', '/assets/ennemy/virus/virus2.svg');
+        this.load.image('bacteria1', '/assets/ennemy/bacteria/bacteria1.svg');
+        this.load.image('bacteria2', '/assets/ennemy/bacteria/bacteria2.svg');
+        this.load.image('fungi1', '/assets/ennemy/fungis/fungi1.svg');
+        this.load.image('fungi2', '/assets/ennemy/fungis/fungi2.svg');
 
         // Load power-up sprites
-        this.load.image('powerup_health', 'assets/game_objects/health.svg');
-        this.load.image('powerup_energy', 'assets/game_objects/energy.svg');
-        this.load.image('powerup_shield', 'assets/game_objects/shield.svg');
+        this.load.image('powerup_health', '/assets/game_objects/health.svg');
+        this.load.image('powerup_energy', '/assets/game_objects/energy.svg');
+        this.load.image('powerup_shield', '/assets/game_objects/shield.svg');
 
         // Load music
-        this.load.audio('menu_music', 'assets/music/CC8a1a.m4a');
-        this.load.audio('game_music', 'assets/music/cCC1a.m4a');
-        this.load.audio('boss_music', 'assets/music/KR1.m4a');
-        this.load.audio('victory_music', 'assets/music/nc2.m4a');
+        this.load.audio('menu_music', '/assets/music/CC8a1a.m4a');
+        this.load.audio('game_music', '/assets/music/cCC1a.m4a');
+        this.load.audio('boss_music', '/assets/music/KR1.m4a');
+        this.load.audio('victory_music', '/assets/music/nc2.m4a');
 
         // Load sound effects
-        this.load.audio('ui_hover', 'assets/sounds/vanta/synth.wav');
-        this.load.audio('ui_click', 'assets/sounds/vanta/pickupCoin.wav');
-        this.load.audio('attack', 'assets/sounds/vanta/laserShoot.wav');
-        this.load.audio('hit_hurt', 'assets/sounds/vanta/hitHurt.wav');
-        this.load.audio('explosion', 'assets/sounds/vanta/explosion.wav');
-        this.load.audio('powerup', 'assets/sounds/vanta/powerUp.wav');
-        this.load.audio('drinking', 'assets/sounds/joy/drinking.mp3');
-        this.load.audio('sword_sound', 'assets/sounds/joy/sword.mp3');
-        this.load.audio('adventure', 'assets/sounds/joy/adventure.mp3');
-        this.load.audio('roar', 'assets/sounds/joy/roar1.m4a');
+        this.load.audio('ui_hover', '/assets/sounds/vanta/synth.wav');
+        this.load.audio('ui_click', '/assets/sounds/vanta/pickupCoin.wav');
+        this.load.audio('attack', '/assets/sounds/vanta/laserShoot.wav');
+        this.load.audio('hit_hurt', '/assets/sounds/vanta/hitHurt.wav');
+        this.load.audio('explosion', '/assets/sounds/vanta/explosion.wav');
+        this.load.audio('powerup', '/assets/sounds/vanta/powerUp.wav');
+        this.load.audio('drinking', '/assets/sounds/joy/drinking.mp3');
+        this.load.audio('sword_sound', '/assets/sounds/joy/sword.mp3');
+        this.load.audio('adventure', '/assets/sounds/joy/adventure.mp3');
+        this.load.audio('roar', '/assets/sounds/joy/roar1.m4a');
 
         // Create particle texture
         this.createParticleTexture();

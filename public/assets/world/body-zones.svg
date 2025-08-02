@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for body zones -->
+    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ee5a52;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lungGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#74b9ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0984e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a29bfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6c5ce7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="liverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdcb6e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e17055;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#0B1426"/>
+  
+  <!-- Heart Zone -->
+  <g id="heart-zone">
+    <circle cx="200" cy="300" r="80" fill="url(#heartGradient)" stroke="#ff4757" stroke-width="3"/>
+    <text x="200" y="310" text-anchor="middle" fill="white" font-size="40" font-family="Arial">❤️</text>
+    <text x="200" y="400" text-anchor="middle" fill="white" font-size="16" font-family="Arial">Heart</text>
+  </g>
+  
+  <!-- Lung Zone -->
+  <g id="lung-zone">
+    <ellipse cx="400" cy="200" rx="60" ry="40" fill="url(#lungGradient)" stroke="#0984e3" stroke-width="3"/>
+    <ellipse cx="500" cy="200" rx="60" ry="40" fill="url(#lungGradient)" stroke="#0984e3" stroke-width="3"/>
+    <text x="400" y="210" text-anchor="middle" fill="white" font-size="30" font-family="Arial">🫁</text>
+    <text x="500" y="210" text-anchor="middle" fill="white" font-size="30" font-family="Arial">🫁</text>
+    <text x="450" y="260" text-anchor="middle" fill="white" font-size="16" font-family="Arial">Lungs</text>
+  </g>
+  
+  <!-- Brain Zone -->
+  <g id="brain-zone">
+    <path d="M 600 150 Q 650 120 700 150 Q 720 200 700 250 Q 650 280 600 250 Q 580 200 600 150 Z" 
+          fill="url(#brainGradient)" stroke="#6c5ce7" stroke-width="3"/>
+    <text x="650" y="200" text-anchor="middle" fill="white" font-size="35" font-family="Arial">🧠</text>
+    <text x="650" y="290" text-anchor="middle" fill="white" font-size="16" font-family="Arial">Brain</text>
+  </g>
+  
+  <!-- Liver Zone -->
+  <g id="liver-zone">
+    <path d="M 300 450 Q 350 420 400 450 Q 420 480 400 520 Q 350 550 300 520 Q 280 480 300 450 Z" 
+          fill="url(#liverGradient)" stroke="#e17055" stroke-width="3"/>
+    <text x="350" y="485" text-anchor="middle" fill="white" font-size="30" font-family="Arial">🫀</text>
+    <text x="350" y="560" text-anchor="middle" fill="white" font-size="16" font-family="Arial">Liver</text>
+  </g>
+  
+  <!-- Blood Vessels -->
+  <g id="blood-vessels">
+    <path d="M 200 300 Q 300 250 400 200" stroke="#ff4757" stroke-width="8" fill="none" opacity="0.7"/>
+    <path d="M 200 300 Q 300 350 400 400" stroke="#ff4757" stroke-width="6" fill="none" opacity="0.7"/>
+    <path d="M 400 200 Q 500 250 600 150" stroke="#ff4757" stroke-width="6" fill="none" opacity="0.7"/>
+    <path d="M 400 400 Q 500 450 600 500" stroke="#ff4757" stroke-width="6" fill="none" opacity="0.7"/>
+  </g>
+  
+  <!-- Navigation Points -->
+  <g id="navigation-points">
+    <circle cx="200" cy="300" r="5" fill="#00ff00"/>
+    <circle cx="400" cy="200" r="5" fill="#00ff00"/>
+    <circle cx="500" cy="200" r="5" fill="#00ff00"/>
+    <circle cx="650" cy="200" r="5" fill="#00ff00"/>
+    <circle cx="350" cy="485" r="5" fill="#00ff00"/>
+  </g>
+</svg> 

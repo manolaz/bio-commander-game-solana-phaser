@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for power-ups -->
+    <linearGradient id="healthGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00b894;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00a085;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="energyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdcb6e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e17055;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#74b9ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0984e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="speedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a29bfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6c5ce7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="damageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff7675;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d63031;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="#0B1426"/>
+  
+  <!-- Health Power-ups -->
+  <g id="health-powerups">
+    <text x="50" y="30" fill="white" font-size="18" font-family="Arial">❤️ Health</text>
+    
+    <!-- Small Health -->
+    <g id="small-health">
+      <circle cx="80" cy="80" r="15" fill="url(#healthGradient)" stroke="#00b894" stroke-width="2"/>
+      <text x="80" y="85" text-anchor="middle" fill="white" font-size="12" font-family="Arial">❤️</text>
+      <text x="80" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">+25 HP</text>
+    </g>
+    
+    <!-- Medium Health -->
+    <g id="medium-health">
+      <circle cx="150" cy="80" r="18" fill="url(#healthGradient)" stroke="#00b894" stroke-width="2"/>
+      <text x="150" y="85" text-anchor="middle" fill="white" font-size="14" font-family="Arial">❤️</text>
+      <text x="150" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">+50 HP</text>
+    </g>
+    
+    <!-- Large Health -->
+    <g id="large-health">
+      <circle cx="220" cy="80" r="20" fill="url(#healthGradient)" stroke="#00b894" stroke-width="2"/>
+      <text x="220" y="85" text-anchor="middle" fill="white" font-size="16" font-family="Arial">❤️</text>
+      <text x="220" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">+100 HP</text>
+    </g>
+  </g>
+  
+  <!-- Energy Power-ups -->
+  <g id="energy-powerups">
+    <text x="50" y="150" fill="white" font-size="18" font-family="Arial">⚡ Energy</text>
+    
+    <!-- Small Energy -->
+    <g id="small-energy">
+      <circle cx="80" cy="200" r="12" fill="url(#energyGradient)" stroke="#fdcb6e" stroke-width="2"/>
+      <text x="80" y="205" text-anchor="middle" fill="white" font-size="10" font-family="Arial">⚡</text>
+      <text x="80" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">+25 EP</text>
+    </g>
+    
+    <!-- Medium Energy -->
+    <g id="medium-energy">
+      <circle cx="150" cy="200" r="15" fill="url(#energyGradient)" stroke="#fdcb6e" stroke-width="2"/>
+      <text x="150" y="205" text-anchor="middle" fill="white" font-size="12" font-family="Arial">⚡</text>
+      <text x="150" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">+50 EP</text>
+    </g>
+    
+    <!-- Large Energy -->
+    <g id="large-energy">
+      <circle cx="220" cy="200" r="18" fill="url(#energyGradient)" stroke="#fdcb6e" stroke-width="2"/>
+      <text x="220" y="205" text-anchor="middle" fill="white" font-size="14" font-family="Arial">⚡</text>
+      <text x="220" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">+100 EP</text>
+    </g>
+  </g>
+  
+  <!-- Special Power-ups -->
+  <g id="special-powerups">
+    <text x="250" y="30" fill="white" font-size="18" font-family="Arial">🛡️ Special</text>
+    
+    <!-- Shield -->
+    <g id="shield-powerup">
+      <circle cx="320" cy="80" r="15" fill="url(#shieldGradient)" stroke="#74b9ff" stroke-width="2"/>
+      <text x="320" y="85" text-anchor="middle" fill="white" font-size="12" font-family="Arial">🛡️</text>
+      <text x="320" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Shield</text>
+    </g>
+    
+    <!-- Speed Boost -->
+    <g id="speed-powerup">
+      <circle cx="380" cy="80" r="15" fill="url(#speedGradient)" stroke="#a29bfe" stroke-width="2"/>
+      <text x="380" y="85" text-anchor="middle" fill="white" font-size="12" font-family="Arial">💨</text>
+      <text x="380" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Speed</text>
+    </g>
+    
+    <!-- Damage Boost -->
+    <g id="damage-powerup">
+      <circle cx="320" cy="140" r="15" fill="url(#damageGradient)" stroke="#ff7675" stroke-width="2"/>
+      <text x="320" y="145" text-anchor="middle" fill="white" font-size="12" font-family="Arial">⚔️</text>
+      <text x="320" y="170" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Damage</text>
+    </g>
+    
+    <!-- Multi-shot -->
+    <g id="multishot-powerup">
+      <circle cx="380" cy="140" r="15" fill="url(#speedGradient)" stroke="#a29bfe" stroke-width="2"/>
+      <text x="380" y="145" text-anchor="middle" fill="white" font-size="12" font-family="Arial">🎯</text>
+      <text x="380" y="170" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Multi-shot</text>
+    </g>
+  </g>
+  
+  <!-- Rare Power-ups -->
+  <g id="rare-powerups">
+    <text x="250" y="200" fill="white" font-size="18" font-family="Arial">🌟 Rare</text>
+    
+    <!-- Invincibility -->
+    <g id="invincibility-powerup">
+      <circle cx="320" cy="250" r="18" fill="url(#shieldGradient)" stroke="#74b9ff" stroke-width="3"/>
+      <text x="320" y="255" text-anchor="middle" fill="white" font-size="14" font-family="Arial">🌟</text>
+      <text x="320" y="280" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Invincible</text>
+    </g>
+    
+    <!-- Ultimate Weapon -->
+    <g id="ultimate-powerup">
+      <circle cx="380" cy="250" r="18" fill="url(#damageGradient)" stroke="#ff7675" stroke-width="3"/>
+      <text x="380" y="255" text-anchor="middle" fill="white" font-size="14" font-family="Arial">💥</text>
+      <text x="380" y="280" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Ultimate</text>
+    </g>
+  </g>
+</svg> 

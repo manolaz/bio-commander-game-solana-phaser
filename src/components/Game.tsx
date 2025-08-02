@@ -83,8 +83,10 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
         }
     }, [selectedZone])
     return (
-        <div>
-
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+            <div className="relative">
+                <div id="game-container" className="border-4 border-blue-500 rounded-lg shadow-2xl"></div>
+            </div>
         </div>
     )
 }
