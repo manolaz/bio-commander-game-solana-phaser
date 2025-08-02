@@ -5,8 +5,8 @@ export class Preloader extends Scene {
         super('Preloader');
     }
 
-    init() {
-        //  A simple progress bar. This is the outline of the progress bar.
+    preload() {
+        // Create loading bar
         const progressBar = this.add.graphics();
         const progressBox = this.add.graphics();
         progressBox.fillStyle(0x222222, 0.8);
@@ -47,20 +47,20 @@ export class Preloader extends Scene {
         });
         assetText.setOrigin(0.5, 0.5);
 
-        //  Update the progress bar as files are loaded
-        this.load.on('progress', (progress: number) => {
-            percentText.setText(Math.round(progress * 100) + '%');
+        // Update progress bar
+        this.load.on('progress', (value: number) => {
             progressBar.clear();
             progressBar.fillStyle(0xffffff, 1);
-            progressBar.fillRect(250, 280, 300 * progress, 30);
+            progressBar.fillRect(250, 280, 300 * value, 30);
+            percentText.setText(Math.round(value * 100) + '%');
         });
 
-        //  Update the progress bar as files are loaded
+        // Update file text
         this.load.on('fileprogress', (file: any) => {
             assetText.setText('Loading asset: ' + file.key);
         });
 
-        //  Remove the progress bar when complete
+        // Remove progress bar when complete
         this.load.on('complete', () => {
             progressBar.destroy();
             progressBox.destroy();
@@ -68,73 +68,81 @@ export class Preloader extends Scene {
             percentText.destroy();
             assetText.destroy();
         });
+
+        // Load game assets
+        this.loadAssets();
     }
 
-    preload() {
-        //  Load the assets for the game - Replace with your own assets
-        this.load.setPath('assets');
-        this.load.image('logo', 'logo.png');
-        this.load.image('sky', 'sky.png');
-        this.load.image('ground', 'platform.png');
-        this.load.image('star', 'star.png');
-        
-        // Load the SVG hero images for T_CELL
-        this.load.image('hero1', 'hero/T_CELL/SVG_hero/hero1.svg');
-        this.load.image('hero2', 'hero/T_CELL/SVG_hero/hero2.svg');
-        this.load.image('hero3', 'hero/T_CELL/SVG_hero/hero3.svg');
-        this.load.image('hero4', 'hero/T_CELL/SVG_hero/hero4.svg');
-        this.load.image('hero5', 'hero/T_CELL/SVG_hero/hero5.svg');
-        
-        // Load the spritesheet for the player (keeping as fallback)
-        this.load.spritesheet('dude', 'dude.png', {
-            frameWidth: 32,
-            frameHeight: 48
-        });
+    private loadAssets() {
+        // Load sprites
+        this.load.image('dude', 'assets/dude.png');
+        this.load.image('platform', 'assets/platform.png');
+        this.load.image('sky', 'assets/sky.png');
+        this.load.image('star', 'assets/star.png');
+        this.load.image('bg', 'assets/bg.png');
+        this.load.image('logo', 'assets/logo.png');
 
-        // Load sound effects from vanta folder
-        this.load.setPath('assets/sounds/vanta');
-        this.load.audio('explosion', 'explosion.wav');
-        this.load.audio('explosion2', 'explosion2.wav');
-        this.load.audio('explosion3', 'explosion3.wav');
-        this.load.audio('explosion4', 'explosion4.wav');
-        this.load.audio('explosion5', 'explosion5.wav');
-        this.load.audio('explosion6', 'explosion6.wav');
-        this.load.audio('laserShoot', 'laserShoot.wav');
-        this.load.audio('laserShoot2', 'laserShoot2.wav');
-        this.load.audio('hitHurt', 'hitHurt.wav');
-        this.load.audio('pickupCoin', 'pickupCoin.wav');
-        this.load.audio('powerUp', 'powerUp.wav');
-        this.load.audio('synth', 'synth.wav');
+        // Load hero sprites
+        this.load.image('hero1', 'assets/hero/T_CELL/SVG_hero/hero1.svg');
+        this.load.image('hero2', 'assets/hero/T_CELL/SVG_hero/hero2.svg');
+        this.load.image('hero3', 'assets/hero/T_CELL/SVG_hero/hero3.svg');
+        this.load.image('hero4', 'assets/hero/T_CELL/SVG_hero/hero4.svg');
+        this.load.image('hero5', 'assets/hero/T_CELL/SVG_hero/hero5.svg');
 
-        // Load sound effects from joy folder
-        this.load.setPath('assets/sounds/joy');
-        this.load.audio('adventure', 'adventure.mp3');
-        this.load.audio('drinking', 'drinking.mp3');
-        this.load.audio('roar1', 'roar1.m4a');
-        this.load.audio('roar2', 'roar2.m4a');
-        this.load.audio('sword', 'sword.mp3');
-        this.load.audio('swords', 'SWORDS.m4a');
+        // Load weapon sprites
+        this.load.image('sword', 'assets/hero/duel_sword/sword.svg');
+        this.load.image('gun', 'assets/hero/dual_gun/gun.svg');
+        this.load.image('shield', 'assets/hero/sword_shield/shield.svg');
+        this.load.image('dual_gun', 'assets/hero/dual_gun/dual_gun.svg');
 
-        // Load additional sound effects (using existing files as placeholders)
-        this.load.audio('uiClick', '../vanta/pickupCoin.wav'); // Using pickup sound for UI clicks
-        this.load.audio('uiHover', '../vanta/powerUp.wav'); // Using powerup sound for UI hover
-        this.load.audio('gameStart', '../vanta/explosion.wav'); // Using explosion for game start
-        this.load.audio('gameOver', '../vanta/hitHurt.wav'); // Using hit sound for game over
-        this.load.audio('levelUp', '../vanta/synth.wav'); // Using synth for level up
+        // Load enemy sprites
+        this.load.image('virus1', 'assets/ennemy/virus/virus1.svg');
+        this.load.image('virus2', 'assets/ennemy/virus/virus2.svg');
+        this.load.image('bacteria1', 'assets/ennemy/bacteria/bacteria1.svg');
+        this.load.image('bacteria2', 'assets/ennemy/bacteria/bacteria2.svg');
+        this.load.image('fungi1', 'assets/ennemy/fungis/fungi1.svg');
+        this.load.image('fungi2', 'assets/ennemy/fungis/fungi2.svg');
 
-        // Load background music tracks
-        this.load.setPath('assets/music');
-        this.load.audio('music_menu', 'CC8a1a.m4a');
-        this.load.audio('music_gameplay', 'cCC1a.m4a');
-        this.load.audio('music_boss', 'nc2.m4a');
-        this.load.audio('music_victory', 'KR1.m4a');
+        // Load power-up sprites
+        this.load.image('powerup_health', 'assets/game_objects/health.svg');
+        this.load.image('powerup_energy', 'assets/game_objects/energy.svg');
+        this.load.image('powerup_shield', 'assets/game_objects/shield.svg');
+
+        // Load music
+        this.load.audio('menu_music', 'assets/music/CC8a1a.m4a');
+        this.load.audio('game_music', 'assets/music/cCC1a.m4a');
+        this.load.audio('boss_music', 'assets/music/KR1.m4a');
+        this.load.audio('victory_music', 'assets/music/nc2.m4a');
+
+        // Load sound effects
+        this.load.audio('ui_hover', 'assets/sounds/vanta/synth.wav');
+        this.load.audio('ui_click', 'assets/sounds/vanta/pickupCoin.wav');
+        this.load.audio('attack', 'assets/sounds/vanta/laserShoot.wav');
+        this.load.audio('hit_hurt', 'assets/sounds/vanta/hitHurt.wav');
+        this.load.audio('explosion', 'assets/sounds/vanta/explosion.wav');
+        this.load.audio('powerup', 'assets/sounds/vanta/powerUp.wav');
+        this.load.audio('drinking', 'assets/sounds/joy/drinking.mp3');
+        this.load.audio('sword_sound', 'assets/sounds/joy/sword.mp3');
+        this.load.audio('adventure', 'assets/sounds/joy/adventure.mp3');
+        this.load.audio('roar', 'assets/sounds/joy/roar1.m4a');
+
+        // Create particle texture
+        this.createParticleTexture();
+    }
+
+    private createParticleTexture() {
+        // Create a simple particle texture
+        const graphics = this.add.graphics();
+        graphics.fillStyle(0xffffff, 1);
+        graphics.fillCircle(4, 4, 4);
+        graphics.generateTexture('particle', 8, 8);
+        graphics.destroy();
     }
 
     create() {
-        //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
-        //  For example, you can define global animations here, so we can use them in other scenes.
-
-        //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-        this.scene.start('MainMenu');
+        // Add some delay to show loading screen
+        this.time.delayedCall(1000, () => {
+            this.scene.start('WalletConnect');
+        });
     }
 }

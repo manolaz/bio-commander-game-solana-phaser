@@ -7,6 +7,9 @@ import { WalletConnect } from '@/scenes/WalletConnect';
 import { MainMenu } from '@/scenes/MainMenu';
 import { Game as MainGame } from '@/scenes/Game';
 import { GameOver } from '@/scenes/GameOver';
+import { WorldMapScene } from '@/scenes/WorldMapScene';
+import { TurnBasedCombatScene } from '@/scenes/TurnBasedCombatScene';
+import { ZoneCompleteScene } from '@/scenes/ZoneCompleteScene';
 import { useUmi } from '@/providers/useUmi';
 import EventCenter from '@/events/eventCenter';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -48,6 +51,9 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
                 MainMenu,
                 MainGame,
                 GameOver,
+                WorldMapScene,
+                TurnBasedCombatScene,
+                ZoneCompleteScene,
             ],
             render: {
                 pixelArt: true,

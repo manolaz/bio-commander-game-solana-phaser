@@ -96,9 +96,10 @@ export class MainMenu extends Scene {
 
     private createButtons() {
         const buttonConfigs = [
-            { text: 'Start Game', scene: 'Game', y: 0.7 },
-            { text: 'Tutorial', scene: 'TutorialScreen', y: 0.8 },
-            { text: 'Settings', scene: 'SettingsScreen', y: 0.9 }
+            { text: 'World Map', scene: 'WorldMapScene', y: 0.65 },
+            { text: 'Start Game', scene: 'Game', y: 0.75 },
+            { text: 'Tutorial', scene: 'TutorialScreen', y: 0.85 },
+            { text: 'Settings', scene: 'SettingsScreen', y: 0.95 }
         ];
 
         buttonConfigs.forEach(config => {
@@ -131,7 +132,7 @@ export class MainMenu extends Scene {
                 
                 // Delay scene transition to allow music fade
                 this.time.delayedCall(500, () => {
-                    if (config.scene === 'Game') {
+                    if (config.scene === 'Game' || config.scene === 'WorldMapScene') {
                         this.scene.start(config.scene, { 
                             umi: this.umi, 
                             selectedZone: this.selectedZone 
