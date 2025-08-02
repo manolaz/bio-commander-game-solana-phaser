@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for enemies -->
+    <linearGradient id="virusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff7675;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d63031;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bacteriaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fd79a8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e84393;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="fungiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdcb6e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e17055;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="#0B1426"/>
+  
+  <!-- Virus Enemies -->
+  <g id="virus-enemies">
+    <text x="50" y="30" fill="white" font-size="18" font-family="Arial">🦠 Viruses</text>
+    
+    <!-- Corona Virus -->
+    <g id="corona-virus">
+      <circle cx="80" cy="80" r="15" fill="url(#virusGradient)" stroke="#d63031" stroke-width="2"/>
+      <circle cx="80" cy="80" r="8" fill="#ff7675"/>
+      <text x="80" y="85" text-anchor="middle" fill="white" font-size="12" font-family="Arial">🦠</text>
+      <text x="80" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Corona</text>
+    </g>
+    
+    <!-- Flu Virus -->
+    <g id="flu-virus">
+      <circle cx="150" cy="80" r="12" fill="url(#virusGradient)" stroke="#d63031" stroke-width="2"/>
+      <text x="150" y="85" text-anchor="middle" fill="white" font-size="10" font-family="Arial">🦠</text>
+      <text x="150" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Flu</text>
+    </g>
+    
+    <!-- HIV Virus -->
+    <g id="hiv-virus">
+      <circle cx="220" cy="80" r="10" fill="url(#virusGradient)" stroke="#d63031" stroke-width="2"/>
+      <text x="220" y="85" text-anchor="middle" fill="white" font-size="8" font-family="Arial">🦠</text>
+      <text x="220" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">HIV</text>
+    </g>
+  </g>
+  
+  <!-- Bacteria Enemies -->
+  <g id="bacteria-enemies">
+    <text x="50" y="150" fill="white" font-size="18" font-family="Arial">🦠 Bacteria</text>
+    
+    <!-- E. Coli -->
+    <g id="e-coli">
+      <ellipse cx="80" cy="200" rx="20" ry="8" fill="url(#bacteriaGradient)" stroke="#e84393" stroke-width="2"/>
+      <text x="80" y="205" text-anchor="middle" fill="white" font-size="10" font-family="Arial">🦠</text>
+      <text x="80" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">E. Coli</text>
+    </g>
+    
+    <!-- Salmonella -->
+    <g id="salmonella">
+      <ellipse cx="150" cy="200" rx="18" ry="6" fill="url(#bacteriaGradient)" stroke="#e84393" stroke-width="2"/>
+      <text x="150" y="205" text-anchor="middle" fill="white" font-size="10" font-family="Arial">🦠</text>
+      <text x="150" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Salmonella</text>
+    </g>
+    
+    <!-- Streptococcus -->
+    <g id="streptococcus">
+      <circle cx="220" cy="200" r="12" fill="url(#bacteriaGradient)" stroke="#e84393" stroke-width="2"/>
+      <text x="220" y="205" text-anchor="middle" fill="white" font-size="10" font-family="Arial">🦠</text>
+      <text x="220" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Strep</text>
+    </g>
+  </g>
+  
+  <!-- Fungi Enemies -->
+  <g id="fungi-enemies">
+    <text x="250" y="30" fill="white" font-size="18" font-family="Arial">🍄 Fungi</text>
+    
+    <!-- Candida -->
+    <g id="candida">
+      <ellipse cx="320" cy="80" rx="15" ry="10" fill="url(#fungiGradient)" stroke="#e17055" stroke-width="2"/>
+      <text x="320" y="85" text-anchor="middle" fill="white" font-size="12" font-family="Arial">🍄</text>
+      <text x="320" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Candida</text>
+    </g>
+    
+    <!-- Aspergillus -->
+    <g id="aspergillus">
+      <path d="M 350 70 Q 360 60 370 70 Q 375 80 370 90 Q 360 100 350 90 Q 345 80 350 70 Z" 
+            fill="url(#fungiGradient)" stroke="#e17055" stroke-width="2"/>
+      <text x="360" y="85" text-anchor="middle" fill="white" font-size="10" font-family="Arial">🍄</text>
+      <text x="360" y="110" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Aspergillus</text>
+    </g>
+  </g>
+  
+  <!-- Power Levels -->
+  <g id="power-levels">
+    <text x="250" y="150" fill="white" font-size="18" font-family="Arial">⚡ Power Levels</text>
+    
+    <!-- Weak -->
+    <g id="weak-enemy">
+      <circle cx="320" cy="200" r="8" fill="#00ff00" stroke="#00cc00" stroke-width="1"/>
+      <text x="320" y="205" text-anchor="middle" fill="white" font-size="8" font-family="Arial">⚡</text>
+      <text x="320" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Weak</text>
+    </g>
+    
+    <!-- Medium -->
+    <g id="medium-enemy">
+      <circle cx="350" cy="200" r="10" fill="#ffff00" stroke="#cccc00" stroke-width="1"/>
+      <text x="350" y="205" text-anchor="middle" fill="white" font-size="10" font-family="Arial">⚡⚡</text>
+      <text x="350" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Medium</text>
+    </g>
+    
+    <!-- Strong -->
+    <g id="strong-enemy">
+      <circle cx="380" cy="200" r="12" fill="#ff0000" stroke="#cc0000" stroke-width="1"/>
+      <text x="380" y="205" text-anchor="middle" fill="white" font-size="10" font-family="Arial">⚡⚡⚡</text>
+      <text x="380" y="220" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Strong</text>
+    </g>
+  </g>
+</svg> 
