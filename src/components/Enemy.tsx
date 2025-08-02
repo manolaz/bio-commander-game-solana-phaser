@@ -55,7 +55,7 @@ const EnemyComponent: React.FC<EnemyProps> = ({ enemy }) => {
               { 
                 width: `${healthPercentage}%`,
                 backgroundColor: healthPercentage > 50 ? '#27ae60' : 
-                               healthPercentage > 25 ? '#f39c12' : '#e74c3c'
+                               healthPercentage > 25 ? '#f39c12' : '#e74c3c',
               }
             ]} 
           />
