@@ -87,7 +87,7 @@ export const TutorialButton: React.FC<TutorialButtonProps> = ({ className = '' }
                 onClick={() => setShowTutorial(false)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
               >
-                Got it! Let's Play! 🚀
+                Got it! Let&apos;s Play! 🚀
               </button>
             </div>
           </div>

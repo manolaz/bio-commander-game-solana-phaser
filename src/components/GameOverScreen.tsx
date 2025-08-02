@@ -27,10 +27,10 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
   };
 
   const getEncouragementMessage = (score: number): string => {
-    if (score >= 500) return "You've mastered the microscopic battlefield!";
+    if (score >= 500) return "You&apos;ve mastered the microscopic battlefield!";
     if (score >= 300) return "Exceptional defense against the invasion!";
     if (score >= 150) return "Your T-cell fought valiantly!";
-    if (score >= 50) return "You're getting the hang of bio-combat!";
+    if (score >= 50) return "You&apos;re getting the hang of bio-combat!";
     return "Every commander starts somewhere. Try again!";
   };
 
