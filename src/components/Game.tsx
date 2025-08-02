@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react'
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { Boot } from '@/scenes/Boot';
 import { Preloader } from '@/scenes/Preloader';
 import { WalletConnect } from '@/scenes/WalletConnect';
