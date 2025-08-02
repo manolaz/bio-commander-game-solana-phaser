@@ -86,12 +86,22 @@ export class MainMenu extends Scene {
         }).setOrigin(0.5);
 
         // Wallet info
-        this.add.text(DEFAULT_WIDTH / 2, DEFAULT_HEIGHT * 0.55, this.umi.identity.publicKey.toString(), {
-            fontSize: '14px',
-            color: '#0f0',
-            stroke: '#000000',
-            strokeThickness: 2
-        }).setOrigin(0.5);
+        try {
+            const walletAddress = this.umi.identity.publicKey.toString();
+            this.add.text(DEFAULT_WIDTH / 2, DEFAULT_HEIGHT * 0.55, `Wallet: ${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`, {
+                fontSize: '14px',
+                color: '#0f0',
+                stroke: '#000000',
+                strokeThickness: 2
+            }).setOrigin(0.5);
+        } catch (error) {
+            this.add.text(DEFAULT_WIDTH / 2, DEFAULT_HEIGHT * 0.55, 'Wallet: Not Connected', {
+                fontSize: '14px',
+                color: '#ff6b6b',
+                stroke: '#000000',
+                strokeThickness: 2
+            }).setOrigin(0.5);
+        }
     }
 
     private createButtons() {

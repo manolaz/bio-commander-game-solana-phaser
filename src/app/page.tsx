@@ -10,8 +10,20 @@ import { useMemo, useState, useEffect } from "react";
 import GameWorld from "@/components/GameWorld";
 import { WorldNavigation } from "@/components/WorldNavigation";
 import { TutorialButton } from "@/components/TutorialButton";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-const Game = dynamic(() => import('@/components/Game'), { ssr: false });
+const Game = dynamic(() => import('@/components/Game'), { 
+    ssr: false,
+    loading: () => (
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+            <div className="text-center text-white">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <h2 className="text-2xl font-bold mb-2">Loading Game</h2>
+                <p className="text-gray-300">Initializing Bio Commander...</p>
+            </div>
+        </div>
+    )
+});
 
 require('@tiplink/wallet-adapter-react-ui/styles.css');
 
@@ -22,6 +34,7 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
   const [selectedZone, setSelectedZone] = useState<string>('heart');
+  const [error, setError] = useState<string | null>(null);
   
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
   const network = WalletAdapterNetwork.Devnet;
@@ -59,14 +72,49 @@ export default function Home() {
     setCurrentView('game');
   };
 
+  const handleError = (error: Error) => {
+    console.error('Game error:', error);
+    setError(error.message);
+  };
+
   const renderCurrentView = () => {
+    if (error) {
+      return (
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+          <div className="text-center text-white">
+            <h2 className="text-2xl font-bold mb-4">Game Error</h2>
+            <p className="text-red-400 mb-4">{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                setCurrentView('world');
+              }} 
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg mr-2"
+            >
+              Back to World Map
+            </button>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentView) {
       case 'world':
         return <GameWorld onEnterZone={handleZoneSelect} />;
       case 'navigation':
         return <WorldNavigation onZoneSelect={handleZoneSelect} currentZone={selectedZone} />;
       case 'game':
-        return <Game selectedZone={selectedZone} />;
+        return (
+          <ErrorBoundary onError={handleError}>
+            <Game selectedZone={selectedZone} />
+          </ErrorBoundary>
+        );
       default:
         return <GameWorld onEnterZone={handleZoneSelect} />;
     }

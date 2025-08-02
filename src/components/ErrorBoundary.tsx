@@ -1,8 +1,8 @@
 import React, { Component, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface Props {
   children: ReactNode;
+  onError?: (error: Error) => void;
 }
 
 interface State {
@@ -27,8 +27,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to console in development
-    if (__DEV__) {
+    if (process.env.NODE_ENV === 'development') {
       console.error('Error caught by boundary:', error, errorInfo);
+    }
+    
+    // Call the onError callback if provided
+    if (this.props.onError) {
+      this.props.onError(error);
     }
   }
 
@@ -39,118 +44,41 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <View style={styles.container}>
-          <View style={styles.errorContainer}>
-            <View style={styles.iconContainer}>
-              <Text style={styles.errorIcon}>⚠️</Text>
-            </View>
-            
-            <Text style={styles.title}>Oops! Something went wrong</Text>
-            <Text style={styles.message}>
-              The game encountered an unexpected error. Don&apos;t worry, your progress is safe!
-            </Text>
-            
-            {__DEV__ && this.state.error && (
-              <Text style={styles.errorDetails}>
-                {this.state.error.message}
-              </Text>
-            )}
-            
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={this.handleRetry}
-              accessibilityLabel="Retry game"
-              accessibilityRole="button"
-            >
-              <Text style={styles.retryButtonText}>🔄 Try Again</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                <span className="text-4xl">⚠️</span>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                Oops! Something went wrong
+              </h2>
+              
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                The game encountered an unexpected error. Don&apos;t worry, your progress is safe!
+              </p>
+              
+              {process.env.NODE_ENV === 'development' && this.state.error && (
+                <div className="mb-6 p-3 bg-red-50 rounded-lg">
+                  <p className="text-sm text-red-600 font-mono">
+                    {this.state.error.message}
+                  </p>
+                </div>
+              )}
+              
+              <button
+                onClick={this.handleRetry}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-200 shadow-lg"
+              >
+                🔄 Try Again
+              </button>
+            </div>
+          </div>
+        </div>
       );
     }
 
     return this.props.children;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0f0f23',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorContainer: {
-    backgroundColor: '#fff',
-    padding: 32,
-    borderRadius: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    elevation: 15,
-    maxWidth: 400,
-    width: '100%',
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(231, 76, 60, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#2c3e50',
-    textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: 0.5,
-  },
-  message: {
-    fontSize: 16,
-    color: '#7f8c8d',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 20,
-    letterSpacing: 0.3,
-  },
-  errorDetails: {
-    fontSize: 12,
-    color: '#e74c3c',
-    textAlign: 'center',
-    marginBottom: 20,
-    padding: 12,
-    backgroundColor: 'rgba(231, 76, 60, 0.1)',
-    borderRadius: 8,
-    fontFamily: 'monospace',
-  },
-  retryButton: {
-    backgroundColor: '#3498db',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 24,
-    shadowColor: '#3498db',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  errorIcon: {
-    fontSize: 48,
-    textAlign: 'center',
-  },
-});

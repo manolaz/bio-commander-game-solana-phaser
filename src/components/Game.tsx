@@ -28,10 +28,20 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
     const wallet = useWallet();
     const umi = useUmi();
     const [ready, setReady] = useState(false);
+    const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    EventCenter.on("ready", () => {
-        setReady(true);
-    });
+    useEffect(() => {
+        const handleReady = () => {
+            setReady(true);
+        };
+
+        EventCenter.on("ready", handleReady);
+        
+        return () => {
+            EventCenter.off("ready", handleReady);
+        };
+    }, []);
 
     useEffect(() => {
         if (ready && wallet.connected) {
@@ -40,48 +50,89 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
     }, [ready, wallet.connected, umi]);
 
     useEffect(() => {
-        // Pass the selected zone to the game
-        EventCenter.emit("selectedZone", selectedZone);
-        
-        const config: Phaser.Types.Core.GameConfig = {
-            width: DEFAULT_WIDTH,
-            height: DEFAULT_HEIGHT,
-            type: Phaser.AUTO,
-            scene: [
-                Boot,
-                Preloader,
-                LoadingScreen,
-                WalletConnect,
-                MainMenu,
-                MainGame,
-                GameOver,
-                WorldMapScene,
-                TurnBasedCombatScene,
-                ZoneCompleteScene,
-                SettingsScreen,
-                TutorialScreen,
-            ],
-            render: {
+        try {
+            // Pass the selected zone to the game
+            EventCenter.emit("selectedZone", selectedZone);
+            
+            const config: Phaser.Types.Core.GameConfig = {
+                width: DEFAULT_WIDTH,
+                height: DEFAULT_HEIGHT,
+                type: Phaser.AUTO,
+                parent: 'game-container',
+                scene: [
+                    Boot,
+                    Preloader,
+                    LoadingScreen,
+                    WalletConnect,
+                    MainMenu,
+                    MainGame,
+                    GameOver,
+                    WorldMapScene,
+                    TurnBasedCombatScene,
+                    ZoneCompleteScene,
+                    SettingsScreen,
+                    TutorialScreen,
+                ],
+                render: {
+                    pixelArt: true,
+                },
+                scale: {
+                    mode: Phaser.Scale.FIT,
+                    autoRound: true,
+                },
                 pixelArt: true,
-            },
-            scale: {
-                mode: Phaser.Scale.FIT,
-                autoRound: true,
-            },
-            pixelArt: true,
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    gravity: { x: 0, y: 800 },
-                    debug: false
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { x: 0, y: 800 },
+                        debug: false
+                    }
+                },
+            };
+            
+            const game = new Phaser.Game(config);
+            setGameInstance(game);
+            
+            return () => {
+                if (game) {
+                    game.destroy(true);
+                    setGameInstance(null);
                 }
-            },
-        };
-        const game = new Phaser.Game(config)
-        return () => {
-            game.destroy(true)
+            };
+        } catch (err) {
+            console.error('Failed to initialize game:', err);
+            setError(err instanceof Error ? err.message : 'Failed to initialize game');
         }
-    }, [selectedZone])
+    }, [selectedZone]);
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+                <div className="text-center text-white">
+                    <h2 className="text-2xl font-bold mb-4">Game Error</h2>
+                    <p className="text-red-400 mb-4">{error}</p>
+                    <button 
+                        onClick={() => window.location.reload()} 
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg"
+                    >
+                        Reload Game
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!ready) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+                <div className="text-center text-white">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <h2 className="text-2xl font-bold mb-2">Initializing Game</h2>
+                    <p className="text-gray-300">Loading Bio Commander...</p>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
             <div className="relative">

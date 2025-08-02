@@ -2,11 +2,11 @@ import type { Umi } from '@metaplex-foundation/umi';
 import { createContext, useContext } from 'react';
 
 type UmiContext = {
-    umi: Umi | null;
+    umi: Umi;
 };
 
 const DEFAULT_CONTEXT: UmiContext = {
-    umi: null,
+    umi: null as any, // This will be overridden by UmiProvider
 };
 
 export const UmiContext = createContext<UmiContext>(DEFAULT_CONTEXT);
