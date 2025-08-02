@@ -170,12 +170,16 @@ export class Game extends Scene {
 
         this.enemies.push(enemy);
         this.physics.add.collider(this.player.sprite, enemy.sprite, this.handlePlayerEnemyCollision, undefined, this);
+        
+        // Play roar sound when enemy spawns
+        this.soundManager.playRoar();
     }
 
     private playerAttack(): void {
         const damage = this.player.performBasicAttack();
         if (damage !== null) {
-            this.soundManager.playExplosion();
+            // Use sword sound for melee attacks
+            this.soundManager.playSword();
             this.soundManager.vibrateShort();
             this.checkEnemyHits(damage);
         }
@@ -397,8 +401,8 @@ export class Game extends Scene {
     private completeWave(): void {
         this.currentWave++;
         
-        // Play level up sound for wave completion
-        this.soundManager.playLevelUp();
+        // Play adventure sound for wave completion (new adventure awaits!)
+        this.soundManager.playAdventure();
         this.soundManager.vibrateLong();
         
         // Update HUD

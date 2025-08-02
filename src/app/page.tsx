@@ -6,7 +6,7 @@ import { clusterApiUrl } from "@solana/web3.js";
 import { TipLinkWalletAdapter } from "@tiplink/wallet-adapter";
 import { TipLinkModalTheme, TipLinkWalletModalProvider, WalletDisconnectButton, WalletMultiButton } from "@tiplink/wallet-adapter-react-ui";
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import GameWorld from "@/components/GameWorld";
 import WorldNavigation from "@/components/WorldNavigation";
 
@@ -18,6 +18,8 @@ type GameView = 'world' | 'navigation' | 'game';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<GameView>('world');
+  const [isClient, setIsClient] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
   
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
   const network = WalletAdapterNetwork.Devnet;
@@ -30,6 +32,25 @@ export default function Home() {
     clientId: "694bf97c-d2ac-4dfc-a786-a001812658df",
     theme: 'dark'
   }), []);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Update time on client side
+  useEffect(() => {
+    if (!isClient) return;
+
+    const updateTime = () => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+
+    return () => clearInterval(interval);
+  }, [isClient]);
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -117,7 +138,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center space-x-4">
                     <span>🌌 Current View: {currentView}</span>
-                    <span>🕐 {new Date().toLocaleTimeString()}</span>
+                    <span>🕐 {isClient ? currentTime : 'Loading...'}</span>
                   </div>
                 </div>
               </div>

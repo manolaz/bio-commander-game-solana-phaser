@@ -93,6 +93,28 @@ export class SoundManager {
             this.scene.sound.add('synth')
         ]);
 
+        // Joy sound effects - Adventure and exploration
+        this.sounds.set('adventure', [
+            this.scene.sound.add('adventure')
+        ]);
+
+        // Joy sound effects - Healing and drinking
+        this.sounds.set('drinking', [
+            this.scene.sound.add('drinking')
+        ]);
+
+        // Joy sound effects - Enemy roars and boss sounds
+        this.sounds.set('roar', [
+            this.scene.sound.add('roar1'),
+            this.scene.sound.add('roar2')
+        ]);
+
+        // Joy sound effects - Melee combat
+        this.sounds.set('sword', [
+            this.scene.sound.add('sword'),
+            this.scene.sound.add('swords')
+        ]);
+
         // UI sounds
         this.sounds.set('uiClick', [
             this.scene.sound.add('uiClick')
@@ -235,6 +257,39 @@ export class SoundManager {
     public playLevelUp(): void {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('levelUp');
+        if (sound) {
+            sound.play();
+        }
+    }
+
+    // Joy sound effect methods
+    public playAdventure(): void {
+        if (!this.settings.soundEnabled) return;
+        const sound = this.getRandomSound('adventure');
+        if (sound) {
+            sound.play();
+        }
+    }
+
+    public playDrinking(): void {
+        if (!this.settings.soundEnabled) return;
+        const sound = this.getRandomSound('drinking');
+        if (sound) {
+            sound.play();
+        }
+    }
+
+    public playRoar(): void {
+        if (!this.settings.soundEnabled) return;
+        const sound = this.getRandomSound('roar');
+        if (sound) {
+            sound.play();
+        }
+    }
+
+    public playSword(): void {
+        if (!this.settings.soundEnabled) return;
+        const sound = this.getRandomSound('sword');
         if (sound) {
             sound.play();
         }

@@ -1,7 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import React, { useEffect, useRef, useState } from 'react';
 
 interface LoadingScreenProps {
   onLoadingComplete: () => void;
@@ -12,307 +9,135 @@ interface LoadingScreenProps {
  * Features animated bio-themed elements and smooth transitions
  */
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const progressAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [isClient, setIsClient] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+  const [scaleIn, setScaleIn] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [pulse, setPulse] = useState(false);
+  const [rotate, setRotate] = useState(false);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
-    // Initial fade in
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(progressAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-      ]),
-    ]).start();
+    if (!isClient) return;
 
-    // Continuous rotation animation
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
+    // Initial fade in
+    const fadeTimer = setTimeout(() => setFadeIn(true), 100);
+    const scaleTimer = setTimeout(() => setScaleIn(true), 800);
+    
+    // Progress animation
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 40);
 
     // Pulse animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
+    const pulseInterval = setInterval(() => {
+      setPulse(prev => !prev);
+    }, 1000);
+
+    // Rotate animation
+    const rotateInterval = setInterval(() => {
+      setRotate(prev => !prev);
+    }, 3000);
 
     // Complete loading after 2.5 seconds
-    const timer = setTimeout(() => {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start(() => {
+    const completeTimer = setTimeout(() => {
+      setFadeIn(false);
+      setTimeout(() => {
         onLoadingComplete();
-      });
+      }, 500);
     }, 2500);
 
-    return () => clearTimeout(timer);
-  }, [fadeAnim, scaleAnim, rotateAnim, progressAnim, pulseAnim, onLoadingComplete]);
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(scaleTimer);
+      clearTimeout(completeTimer);
+      clearInterval(progressInterval);
+      clearInterval(pulseInterval);
+      clearInterval(rotateInterval);
+    };
+  }, [isClient, onLoadingComplete]);
 
-  const spin = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="text-6xl mb-4">🧬</div>
+          <div className="text-2xl font-bold">BIO COMMANDER</div>
+          <div className="text-sm text-gray-300">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <div className={`min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center transition-opacity duration-800 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
       {/* Background gradient effect */}
-      <View style={styles.backgroundGradient}>
-        <View style={styles.gradientLayer1} />
-        <View style={styles.gradientLayer2} />
-        <View style={styles.gradientLayer3} />
-      </View>
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-indigo-900"></div>
+        <div className="absolute top-1/5 left-1/10 right-1/10 bottom-1/5 bg-blue-500 bg-opacity-10 rounded-full"></div>
+        <div className="absolute top-3/5 left-1/5 right-1/5 bottom-1/10 bg-purple-500 bg-opacity-10 rounded-full"></div>
+      </div>
 
       {/* Floating particles */}
-      <View style={styles.particlesContainer}>
-        {[...Array(20)].map((_, index) => (
-          <Animated.View
+      <div className="absolute inset-0">
+        {Array.from({ length: 20 }).map((_, index) => (
+          <div
             key={index}
-            style={[
-              styles.particle,
-              {
-                left: Math.random() * SCREEN_WIDTH,
-                top: Math.random() * SCREEN_HEIGHT,
-                opacity: Math.random() * 0.6 + 0.2,
-                transform: [{ rotate: spin }],
-              },
-            ]}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              opacity: Math.random() * 0.6 + 0.2,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+            }}
           />
         ))}
-      </View>
+      </div>
 
       {/* Main content */}
-      <Animated.View
-        style={[
-          styles.content,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
-      >
+      <div className={`text-center transition-all duration-600 ${fadeIn ? 'opacity-100' : 'opacity-0'} ${scaleIn ? 'scale-100' : 'scale-90'}`}>
         {/* Logo */}
-        <Animated.View
-          style={[
-            styles.logoContainer,
-            {
-              transform: [{ scale: pulseAnim }],
-            },
-          ]}
-        >
-          <Text style={styles.logoIcon}>🧬</Text>
-          <Text style={styles.logoText}>BIO COMMANDER</Text>
-          <Text style={styles.logoSubtext}>Defend the Microscopic Realm</Text>
-        </Animated.View>
+        <div className={`mb-16 transition-transform duration-1000 ${pulse ? 'scale-110' : 'scale-100'}`}>
+          <div className="text-8xl mb-4">🧬</div>
+          <div className="text-4xl font-black text-white tracking-wider mb-2 drop-shadow-lg">BIO COMMANDER</div>
+          <div className="text-lg text-gray-300 tracking-wide">Defend the Microscopic Realm</div>
+        </div>
 
         {/* Loading indicator */}
-        <View style={styles.loadingContainer}>
-          <Animated.View
-            style={[
-              styles.loadingCircle,
-              {
-                transform: [{ rotate: spin }],
-              },
-            ]}
-          >
-            <View style={styles.loadingInner} />
-          </Animated.View>
+        <div className="mb-16">
+          <div className={`w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-6 transition-transform duration-3000 ${rotate ? 'rotate-360' : 'rotate-0'}`}>
+            <div className="w-6 h-6 bg-blue-500 rounded-full mx-auto mt-2"></div>
+          </div>
           
-          <Text style={styles.loadingText}>Initializing Bio-Defense Systems</Text>
+          <div className="text-lg text-gray-300 mb-6">Initializing Bio-Defense Systems</div>
           
           {/* Progress bar */}
-          <View style={styles.progressContainer}>
-            <Animated.View
-              style={[
-                styles.progressBar,
-                {
-                  width: progressAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%'],
-                  }),
-                },
-              ]}
+          <div className="w-64 h-2 bg-gray-700 rounded-full mx-auto overflow-hidden">
+            <div 
+              className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
             />
-          </View>
-        </View>
+          </div>
+        </div>
 
         {/* Loading tips */}
-        <View style={styles.tipsContainer}>
-          <Text style={styles.tipText}>
-            💡 Tip: Draw shapes to attack enemies
-          </Text>
-          <Text style={styles.tipText}>
-            🛡️ Collect power-ups for special abilities
-          </Text>
-          <Text style={styles.tipText}>
-            ⚡ Manage your energy wisely
-          </Text>
-        </View>
-      </Animated.View>
-    </Animated.View>
+        <div className="space-y-2 text-sm text-gray-400">
+          <div>💡 Tip: Draw shapes to attack enemies</div>
+          <div>🛡️ Collect power-ups for special abilities</div>
+          <div>⚡ Manage your energy wisely</div>
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0a0a1a',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  gradientLayer1: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a3a',
-  },
-  gradientLayer2: {
-    position: 'absolute',
-    top: '20%',
-    left: '10%',
-    right: '10%',
-    bottom: '20%',
-    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-    borderRadius: 200,
-  },
-  gradientLayer3: {
-    position: 'absolute',
-    top: '60%',
-    left: '20%',
-    right: '20%',
-    bottom: '10%',
-    backgroundColor: 'rgba(155, 89, 182, 0.1)',
-    borderRadius: 150,
-  },
-  particlesContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  particle: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 2,
-  },
-  content: {
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 60,
-  },
-  logoIcon: {
-    fontSize: 80,
-    marginBottom: 16,
-  },
-  logoText: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#ffffff',
-    letterSpacing: 2,
-    textAlign: 'center',
-    marginBottom: 8,
-    textShadowColor: 'rgba(102, 126, 234, 0.8)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 12,
-  },
-  logoSubtext: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
-    letterSpacing: 1,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    marginBottom: 60,
-  },
-  loadingCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: 'rgba(102, 126, 234, 0.3)',
-    borderTopColor: '#667eea',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  loadingInner: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#667eea',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  progressContainer: {
-    width: 200,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#667eea',
-    borderRadius: 2,
-  },
-  tipsContainer: {
-    alignItems: 'center',
-  },
-  tipText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
-    textAlign: 'center',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-});

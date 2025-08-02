@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
 
 interface ShapeFeedbackProps {
   message: string;
@@ -15,117 +14,64 @@ export const ShapeFeedback: React.FC<ShapeFeedbackProps> = ({
   message,
   onComplete,
 }) => {
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [scaleAnim] = useState(new Animated.Value(0.8));
+  const [isClient, setIsClient] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+  const [scaleIn, setScaleIn] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
-    if (message) {
-      // Entrance animation
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
+    if (!isClient || !message) return;
 
-      // Auto-dismiss after 2 seconds
-      const timer = setTimeout(() => {
-        Animated.parallel([
-          Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 0.8,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
-          onComplete?.();
-        });
-      }, 2000);
+    setIsVisible(true);
+    
+    // Entrance animation
+    const fadeTimer = setTimeout(() => setFadeIn(true), 50);
+    const scaleTimer = setTimeout(() => setScaleIn(true), 100);
 
-      return () => clearTimeout(timer);
-    }
-  }, [message, fadeAnim, scaleAnim, onComplete]);
+    // Auto-dismiss after 2 seconds
+    const dismissTimer = setTimeout(() => {
+      setFadeIn(false);
+      setScaleIn(false);
+      
+      setTimeout(() => {
+        setIsVisible(false);
+        onComplete?.();
+      }, 300);
+    }, 2000);
 
-  if (!message) return null;
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(scaleTimer);
+      clearTimeout(dismissTimer);
+    };
+  }, [message, isClient, onComplete]);
+
+  if (!isClient || !isVisible) return null;
 
   const getMessageStyle = (msg: string) => {
     if (msg.includes('💥') || msg.includes('🛡️')) {
-      return styles.successMessage;
+      return 'bg-green-600 bg-opacity-95 border-green-400';
     }
     if (msg.includes('❌') || msg.includes('⚡')) {
-      return styles.errorMessage;
+      return 'bg-red-600 bg-opacity-95 border-red-400';
     }
-    return styles.defaultMessage;
+    return 'bg-gray-600 bg-opacity-95 border-gray-400';
   };
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        getMessageStyle(message),
-        {
-          opacity: fadeAnim,
-          transform: [{ scale: scaleAnim }],
-        }
-      ]}
+    <div
+      className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-5 py-3 rounded-2xl z-50 min-w-48 text-center shadow-2xl border-2 transition-all duration-300 ${
+        fadeIn ? 'opacity-100' : 'opacity-0'
+      } ${scaleIn ? 'scale-100' : 'scale-80'} ${getMessageStyle(message)}`}
     >
-      <Text style={styles.messageText}>{message}</Text>
-    </Animated.View>
+      <div className="text-white text-lg font-bold tracking-wide drop-shadow-lg">
+        {message}
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: '45%',
-    left: '50%',
-    transform: [{ translateX: -100 }, { translateY: -25 }],
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    zIndex: 2000,
-    minWidth: 200,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  successMessage: {
-    backgroundColor: 'rgba(39, 174, 96, 0.95)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  errorMessage: {
-    backgroundColor: 'rgba(231, 76, 60, 0.95)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  defaultMessage: {
-    backgroundColor: 'rgba(52, 73, 94, 0.95)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  messageText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-    letterSpacing: 0.5,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-});

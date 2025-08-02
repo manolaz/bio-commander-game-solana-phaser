@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, ScrollView, Dimensions } from 'react-native';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface TutorialScreenProps {
   onBack: () => void;
@@ -19,9 +16,28 @@ interface TutorialStep {
  * Features comprehensive game tutorial with modern design
  */
 export const TutorialScreen: React.FC<TutorialScreenProps> = ({ onBack }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
+  const [isClient, setIsClient] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+  const [slideIn, setSlideIn] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    // Entrance animations
+    const fadeTimer = setTimeout(() => setFadeIn(true), 100);
+    const slideTimer = setTimeout(() => setSlideIn(true), 200);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(slideTimer);
+    };
+  }, [isClient]);
 
   const tutorialSteps: TutorialStep[] = [
     {
@@ -90,22 +106,6 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({ onBack }) => {
     }
   ];
 
-  useEffect(() => {
-    // Entrance animations
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnim, slideAnim]);
-
   const nextStep = () => {
     if (currentStep < tutorialSteps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -120,314 +120,121 @@ export const TutorialScreen: React.FC<TutorialScreenProps> = ({ onBack }) => {
 
   const currentTutorialStep = tutorialSteps[currentStep];
 
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="text-6xl mb-4">🧬</div>
+          <div className="text-2xl font-bold">Tutorial</div>
+          <div className="text-sm text-gray-300">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <div className={`min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 transition-opacity duration-600 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
       {/* Background */}
-      <View style={styles.backgroundGradient}>
-        <View style={styles.gradientLayer1} />
-        <View style={styles.gradientLayer2} />
-      </View>
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-indigo-900"></div>
+        <div className="absolute top-1/10 left-1/20 right-1/20 bottom-1/10 bg-blue-500 bg-opacity-5 rounded-full"></div>
+      </div>
 
       {/* Header */}
-      <Animated.View
-        style={[
-          styles.header,
-          {
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
-      >
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tutorial</Text>
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
+      <div className={`relative flex items-center justify-between px-5 pt-15 pb-5 bg-white bg-opacity-5 border-b border-white border-opacity-10 transition-all duration-500 ${slideIn ? 'translate-y-0' : 'translate-y-12'}`}>
+        <button
+          className="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center transition-all duration-200 hover:bg-opacity-20"
+          onClick={onBack}
+        >
+          <span className="text-xl text-white font-semibold">←</span>
+        </button>
+        <div className="text-xl font-bold text-white tracking-wide">Tutorial</div>
+        <div className="px-3 py-1.5 bg-blue-500 bg-opacity-20 rounded-xl">
+          <span className="text-xs font-semibold text-white">
             {currentStep + 1} / {tutorialSteps.length}
-          </Text>
-        </View>
-      </Animated.View>
+          </span>
+        </div>
+      </div>
 
       {/* Content */}
-      <Animated.View
-        style={[
-          styles.content,
-          {
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
-      >
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <div className={`relative flex-1 px-5 pt-5 transition-all duration-500 ${slideIn ? 'translate-y-0' : 'translate-y-12'}`}>
+        <div className="h-full overflow-y-auto">
           {/* Step Icon */}
-          <View style={styles.stepIconContainer}>
-            <Text style={styles.stepIcon}>{currentTutorialStep.icon}</Text>
-          </View>
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-4">{currentTutorialStep.icon}</div>
+          </div>
 
           {/* Step Title */}
-          <Text style={styles.stepTitle}>{currentTutorialStep.title}</Text>
+          <div className="text-2xl font-black text-white text-center mb-4 tracking-wide drop-shadow-lg">
+            {currentTutorialStep.title}
+          </div>
 
           {/* Step Description */}
-          <Text style={styles.stepDescription}>{currentTutorialStep.description}</Text>
+          <div className="text-base text-white text-opacity-80 text-center leading-6 mb-8 tracking-wide">
+            {currentTutorialStep.description}
+          </div>
 
           {/* Tips Section */}
-          <View style={styles.tipsSection}>
-            <Text style={styles.tipsTitle}>Key Points:</Text>
+          <div className="mb-8">
+            <div className="text-lg font-bold text-yellow-400 mb-4 text-center">Key Points:</div>
             {currentTutorialStep.tips.map((tip, index) => (
-              <View key={index} style={styles.tipItem}>
-                <Text style={styles.tipBullet}>•</Text>
-                <Text style={styles.tipText}>{tip}</Text>
-              </View>
+              <div key={index} className="flex items-start mb-3 px-4">
+                <span className="text-blue-400 mr-3 mt-0.5">•</span>
+                <span className="text-sm text-white text-opacity-80 leading-5 flex-1">
+                  {tip}
+                </span>
+              </div>
             ))}
-          </View>
+          </div>
 
           {/* Interactive Demo Placeholder */}
-          <View style={styles.demoContainer}>
-            <Text style={styles.demoTitle}>Interactive Demo</Text>
-            <View style={styles.demoPlaceholder}>
-              <Text style={styles.demoText}>Demo coming soon...</Text>
-            </View>
-          </View>
-        </ScrollView>
+          <div className="mb-8">
+            <div className="text-base font-semibold text-white text-center mb-3">Interactive Demo</div>
+            <div className="h-30 bg-white bg-opacity-5 rounded-xl border border-white border-opacity-10 flex items-center justify-center">
+              <span className="text-sm text-white text-opacity-50 italic">Demo coming soon...</span>
+            </div>
+          </div>
+        </div>
 
         {/* Navigation */}
-        <View style={styles.navigation}>
-          <TouchableOpacity
-            style={[styles.navButton, currentStep === 0 && styles.navButtonDisabled]}
-            onPress={prevStep}
+        <div className="flex items-center justify-between py-5 border-t border-white border-opacity-10">
+          <button
+            className={`px-5 py-3 rounded-xl border border-white border-opacity-20 transition-all duration-200 ${
+              currentStep === 0 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'bg-white bg-opacity-10 hover:bg-opacity-20'
+            }`}
+            onClick={prevStep}
             disabled={currentStep === 0}
           >
-            <Text style={[styles.navButtonText, currentStep === 0 && styles.navButtonTextDisabled]}>
+            <span className={`text-sm font-semibold ${
+              currentStep === 0 ? 'text-white text-opacity-40' : 'text-white text-opacity-80'
+            }`}>
               Previous
-            </Text>
-          </TouchableOpacity>
+            </span>
+          </button>
 
-          <View style={styles.stepIndicators}>
+          <div className="flex gap-2">
             {tutorialSteps.map((_, index) => (
-              <View
+              <div
                 key={index}
-                style={[
-                  styles.stepIndicator,
-                  index === currentStep && styles.stepIndicatorActive,
-                ]}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  index === currentStep ? 'bg-blue-500' : 'bg-white bg-opacity-20'
+                }`}
               />
             ))}
-          </View>
+          </div>
 
-          <TouchableOpacity
-            style={[styles.navButton, styles.primaryNavButton]}
-            onPress={nextStep}
+          <button
+            className="px-5 py-3 rounded-xl bg-blue-600 border border-blue-600 transition-all duration-200 hover:bg-blue-700"
+            onClick={nextStep}
           >
-            <Text style={styles.primaryNavButtonText}>
+            <span className="text-sm font-semibold text-white">
               {currentStep === tutorialSteps.length - 1 ? 'Finish' : 'Next'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </Animated.View>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0a0a1a',
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  gradientLayer1: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a3a',
-  },
-  gradientLayer2: {
-    position: 'absolute',
-    top: '10%',
-    left: '5%',
-    right: '5%',
-    bottom: '10%',
-    backgroundColor: 'rgba(102, 126, 234, 0.05)',
-    borderRadius: 200,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 20,
-    color: '#ffffff',
-    fontWeight: '600',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: 1,
-  },
-  progressContainer: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(102, 126, 234, 0.2)',
-    borderRadius: 12,
-  },
-  progressText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  stepIconContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  stepIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  stepTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 16,
-    letterSpacing: 0.5,
-    textShadowColor: 'rgba(102, 126, 234, 0.8)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
-  },
-  stepDescription: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 32,
-    letterSpacing: 0.2,
-  },
-  tipsSection: {
-    marginBottom: 32,
-  },
-  tipsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#f39c12',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  tipItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-    paddingHorizontal: 16,
-  },
-  tipBullet: {
-    fontSize: 16,
-    color: '#667eea',
-    marginRight: 12,
-    marginTop: 2,
-  },
-  tipText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    lineHeight: 20,
-    flex: 1,
-  },
-  demoContainer: {
-    marginBottom: 32,
-  },
-  demoTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  demoPlaceholder: {
-    height: 120,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  demoText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontStyle: 'italic',
-  },
-  navigation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  navButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  navButtonDisabled: {
-    opacity: 0.5,
-  },
-  primaryNavButton: {
-    backgroundColor: '#667eea',
-    borderColor: '#667eea',
-  },
-  navButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  navButtonTextDisabled: {
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  primaryNavButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  stepIndicators: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  stepIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  stepIndicatorActive: {
-    backgroundColor: '#667eea',
-  },
-});

@@ -8,11 +8,19 @@ interface SoundTestProps {
 export const SoundTest: React.FC<SoundTestProps> = ({ soundManager }) => {
     const [settings, setSettings] = useState<SoundSettings>(soundManager.getSettings());
     const [isVisible, setIsVisible] = useState(false);
+    const [isClient, setIsClient] = useState(false);
+
+    // Ensure client-side rendering
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     useEffect(() => {
+        if (!isClient) return;
+        
         // Update settings when soundManager changes
         setSettings(soundManager.getSettings());
-    }, [soundManager]);
+    }, [soundManager, isClient]);
 
     const handleSettingChange = (key: keyof SoundSettings, value: any) => {
         const newSettings = { ...settings, [key]: value };
@@ -29,6 +37,8 @@ export const SoundTest: React.FC<SoundTestProps> = ({ soundManager }) => {
         soundManager.playMusic(trackName);
         soundManager.vibrateShort();
     };
+
+    if (!isClient) return null;
 
     if (!isVisible) {
         return (

@@ -106,12 +106,21 @@ export class Preloader extends Scene {
         this.load.audio('powerUp', 'powerUp.wav');
         this.load.audio('synth', 'synth.wav');
 
+        // Load sound effects from joy folder
+        this.load.setPath('assets/sounds/joy');
+        this.load.audio('adventure', 'adventure.mp3');
+        this.load.audio('drinking', 'drinking.mp3');
+        this.load.audio('roar1', 'roar1.m4a');
+        this.load.audio('roar2', 'roar2.m4a');
+        this.load.audio('sword', 'sword.mp3');
+        this.load.audio('swords', 'SWORDS.m4a');
+
         // Load additional sound effects (using existing files as placeholders)
-        this.load.audio('uiClick', 'pickupCoin.wav'); // Using pickup sound for UI clicks
-        this.load.audio('uiHover', 'powerUp.wav'); // Using powerup sound for UI hover
-        this.load.audio('gameStart', 'explosion.wav'); // Using explosion for game start
-        this.load.audio('gameOver', 'hitHurt.wav'); // Using hit sound for game over
-        this.load.audio('levelUp', 'synth.wav'); // Using synth for level up
+        this.load.audio('uiClick', '../vanta/pickupCoin.wav'); // Using pickup sound for UI clicks
+        this.load.audio('uiHover', '../vanta/powerUp.wav'); // Using powerup sound for UI hover
+        this.load.audio('gameStart', '../vanta/explosion.wav'); // Using explosion for game start
+        this.load.audio('gameOver', '../vanta/hitHurt.wav'); // Using hit sound for game over
+        this.load.audio('levelUp', '../vanta/synth.wav'); // Using synth for level up
 
         // Load background music tracks
         this.load.setPath('assets/music');

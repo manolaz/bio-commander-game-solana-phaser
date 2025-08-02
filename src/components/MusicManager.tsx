@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Audio } from 'expo-av';
 
 interface MusicManagerProps {
   isEnabled: boolean;
@@ -8,10 +7,10 @@ interface MusicManagerProps {
 }
 
 const MUSIC_FILES = [
-  require('../assets/music/CC8a1a.m4a'),
-  require('../assets/music/cCC1a.m4a'),
-  require('../assets/music/nc2.m4a'),
-  require('../assets/music/KR1.m4a'),
+  '/assets/music/CC8a1a.m4a',
+  '/assets/music/cCC1a.m4a',
+  '/assets/music/nc2.m4a',
+  '/assets/music/KR1.m4a',
 ];
 
 export const MusicManager: React.FC<MusicManagerProps> = ({
@@ -22,7 +21,13 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const [isClient, setIsClient] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Get a random music track
   const getRandomTrack = () => {
@@ -32,48 +37,54 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
 
   // Load and play a specific track
   const playTrack = async (trackIndex: number) => {
+    if (!isClient) return;
+    
     try {
       setIsLoading(true);
       
-      // Unload previous sound if it exists
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
+      // Create new audio element if it doesn't exist
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
       }
 
-      // Load new sound
-      const { sound } = await Audio.Sound.createAsync(
-        MUSIC_FILES[trackIndex],
-        {
-          shouldPlay: true,
-          isLooping: false,
-          volume: volume,
-        }
-      );
+      const audio = audioRef.current;
+      audio.src = MUSIC_FILES[trackIndex];
+      audio.volume = volume;
+      audio.loop = false;
 
-      soundRef.current = sound;
-      setCurrentTrackIndex(trackIndex);
-      setIsPlaying(true);
+      // Set up event listeners
+      audio.onended = () => {
+        // Track finished, play next random track
+        const nextTrackIndex = getRandomTrack();
+        playTrack(nextTrackIndex);
+        onMusicEnd?.();
+      };
 
-      // Set up event listener for when track ends
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          // Track finished, play next random track
-          const nextTrackIndex = getRandomTrack();
-          playTrack(nextTrackIndex);
-          onMusicEnd?.();
-        }
-      });
+      audio.oncanplaythrough = () => {
+        audio.play().then(() => {
+          setCurrentTrackIndex(trackIndex);
+          setIsPlaying(true);
+          setIsLoading(false);
+        }).catch((error) => {
+          console.error('Error playing music track:', error);
+          setIsLoading(false);
+        });
+      };
+
+      audio.onerror = (error) => {
+        console.error('Error loading music track:', error);
+        setIsLoading(false);
+      };
 
     } catch (error) {
       console.error('Error playing music track:', error);
-    } finally {
       setIsLoading(false);
     }
   };
 
   // Start playing random music
   const startMusic = async () => {
-    if (!isEnabled) return;
+    if (!isEnabled || !isClient) return;
     
     const randomTrackIndex = getRandomTrack();
     await playTrack(randomTrackIndex);
@@ -81,12 +92,11 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
 
   // Stop music
   const stopMusic = async () => {
+    if (!isClient || !audioRef.current) return;
+    
     try {
-      if (soundRef.current) {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       setIsPlaying(false);
     } catch (error) {
       console.error('Error stopping music:', error);
@@ -95,11 +105,11 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
 
   // Pause music
   const pauseMusic = async () => {
+    if (!isClient || !audioRef.current) return;
+    
     try {
-      if (soundRef.current) {
-        await soundRef.current.pauseAsync();
-        setIsPlaying(false);
-      }
+      audioRef.current.pause();
+      setIsPlaying(false);
     } catch (error) {
       console.error('Error pausing music:', error);
     }
@@ -107,11 +117,11 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
 
   // Resume music
   const resumeMusic = async () => {
+    if (!isClient || !audioRef.current) return;
+    
     try {
-      if (soundRef.current) {
-        await soundRef.current.playAsync();
-        setIsPlaying(true);
-      }
+      await audioRef.current.play();
+      setIsPlaying(true);
     } catch (error) {
       console.error('Error resuming music:', error);
     }
@@ -119,53 +129,39 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
 
   // Update volume
   const updateVolume = async (newVolume: number) => {
+    if (!isClient || !audioRef.current) return;
+    
     try {
-      if (soundRef.current) {
-        await soundRef.current.setVolumeAsync(newVolume);
-      }
+      audioRef.current.volume = newVolume;
     } catch (error) {
       console.error('Error updating volume:', error);
     }
   };
 
-  // Set up audio mode for background music
-  useEffect(() => {
-    const setupAudio = async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          staysActiveInBackground: true,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false,
-        });
-      } catch (error) {
-        console.error('Error setting up audio mode:', error);
-      }
-    };
-
-    setupAudio();
-  }, []);
-
   // Handle music enable/disable
   useEffect(() => {
-    if (isEnabled) {
-      startMusic();
-    } else {
-      stopMusic();
+    if (isClient) {
+      if (isEnabled) {
+        startMusic();
+      } else {
+        stopMusic();
+      }
     }
-  }, [isEnabled]);
+  }, [isEnabled, isClient]);
 
   // Handle volume changes
   useEffect(() => {
-    updateVolume(volume);
-  }, [volume]);
+    if (isClient) {
+      updateVolume(volume);
+    }
+  }, [volume, isClient]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
       }
     };
   }, []);

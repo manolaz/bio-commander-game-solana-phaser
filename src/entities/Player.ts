@@ -310,9 +310,9 @@ export class Player {
 
     public heal(amount: number): void {
         this.combatSystem.heal(amount);
-        // Play power-up sound when healing
+        // Play drinking sound when healing
         if (this.soundManager) {
-            this.soundManager.playPowerUp();
+            this.soundManager.playDrinking();
         }
     }
 

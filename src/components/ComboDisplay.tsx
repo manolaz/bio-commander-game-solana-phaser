@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
 
 interface ComboDisplayProps {
   combo: number;
@@ -14,43 +13,35 @@ export const ComboDisplay: React.FC<ComboDisplayProps> = ({
   combo,
   isVisible,
 }) => {
-  const [scaleAnim] = useState(new Animated.Value(0));
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [isClient, setIsClient] = useState(false);
+  const [scaleIn, setScaleIn] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
+    if (!isClient) return;
+
     if (isVisible && combo > 1) {
       // Show combo with animation
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 200,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      const fadeTimer = setTimeout(() => setFadeIn(true), 50);
+      const scaleTimer = setTimeout(() => setScaleIn(true), 100);
+      
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(scaleTimer);
+      };
     } else {
       // Hide combo
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      setFadeIn(false);
+      setScaleIn(false);
     }
-  }, [isVisible, combo, scaleAnim, fadeAnim]);
+  }, [isVisible, combo, isClient]);
 
-  if (combo <= 1) return null;
+  if (!isClient || combo <= 1) return null;
 
   const getComboColor = (comboLevel: number) => {
     if (comboLevel >= 10) return '#ff3838';
@@ -69,65 +60,26 @@ export const ComboDisplay: React.FC<ComboDisplayProps> = ({
   };
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          opacity: fadeAnim,
-          transform: [{ scale: scaleAnim }],
-        },
-      ]}
-    >
-      <View style={[styles.comboContainer, { borderColor: getComboColor(combo) }]}>
-        <Text style={[styles.comboText, { color: getComboColor(combo) }]}>
+    <div className={`absolute top-70 left-5 right-5 flex justify-center z-50 transition-all duration-200 ${
+      fadeIn ? 'opacity-100' : 'opacity-0'
+    } ${scaleIn ? 'scale-100' : 'scale-0'}`}>
+      <div 
+        className="bg-black bg-opacity-80 px-5 py-3 rounded-2xl border-2 shadow-lg"
+        style={{ borderColor: getComboColor(combo) }}
+      >
+        <div 
+          className="text-base font-black text-center mb-1 tracking-wide drop-shadow-lg"
+          style={{ color: getComboColor(combo) }}
+        >
           {getComboText(combo)}
-        </Text>
-        <Text style={[styles.comboMultiplier, { color: getComboColor(combo) }]}>
+        </div>
+        <div 
+          className="text-2xl font-black text-center tracking-widest drop-shadow-lg"
+          style={{ color: getComboColor(combo) }}
+        >
           {combo}x
-        </Text>
-      </View>
-    </Animated.View>
+        </div>
+      </div>
+    </div>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 280,
-    left: 20,
-    right: 20,
-    alignItems: 'center',
-    zIndex: 1500,
-  },
-  comboContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    borderWidth: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  comboText: {
-    fontSize: 16,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: 4,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: 1,
-  },
-  comboMultiplier: {
-    fontSize: 24,
-    fontWeight: '900',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: 2,
-  },
-}); 
+}; 

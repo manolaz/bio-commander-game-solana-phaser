@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { Achievement } from '../utils/types';
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+}
 
 interface AchievementDisplayProps {
   achievement: Achievement;
@@ -15,136 +21,70 @@ export const AchievementDisplay: React.FC<AchievementDisplayProps> = ({
   achievement,
   onDismiss,
 }) => {
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [slideAnim] = useState(new Animated.Value(-100));
+  const [isClient, setIsClient] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+  const [slideIn, setSlideIn] = useState(false);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
+    if (!isClient) return;
+
     // Entrance animation
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        tension: 100,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    const fadeTimer = setTimeout(() => setFadeIn(true), 100);
+    const slideTimer = setTimeout(() => setSlideIn(true), 200);
 
     // Auto-dismiss after 3 seconds
-    const timer = setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: -100,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
+    const dismissTimer = setTimeout(() => {
+      setFadeIn(false);
+      setSlideIn(false);
+      
+      setTimeout(() => {
         onDismiss();
-      });
+      }, 300);
     }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [fadeAnim, slideAnim, onDismiss]);
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(slideTimer);
+      clearTimeout(dismissTimer);
+    };
+  }, [isClient, onDismiss]);
+
+  const handleDismiss = () => {
+    setFadeIn(false);
+    setSlideIn(false);
+    
+    setTimeout(() => {
+      onDismiss();
+    }, 200);
+  };
+
+  if (!isClient) return null;
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
-    >
-      <TouchableOpacity
-        style={styles.content}
-        onPress={() => {
-          Animated.parallel([
-            Animated.timing(fadeAnim, {
-              toValue: 0,
-              duration: 200,
-              useNativeDriver: true,
-            }),
-            Animated.timing(slideAnim, {
-              toValue: -100,
-              duration: 200,
-              useNativeDriver: true,
-            }),
-          ]).start(() => onDismiss());
-        }}
+    <div className={`absolute top-25 left-5 right-5 z-50 transition-all duration-500 ${
+      fadeIn ? 'opacity-100' : 'opacity-0'
+    } ${slideIn ? 'translate-y-0' : '-translate-y-24'}`}>
+      <button
+        className="w-full flex items-center bg-green-500 bg-opacity-95 p-4 rounded-2xl shadow-lg border-2 border-green-400 transition-all duration-200 hover:scale-105"
+        onClick={handleDismiss}
       >
-        <View style={styles.iconContainer}>
-          <Text style={styles.icon}>{achievement.icon}</Text>
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>Achievement Unlocked!</Text>
-          <Text style={styles.description}>{achievement.title}</Text>
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
+        <div className="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-3">
+          <span className="text-2xl">{achievement.icon}</span>
+        </div>
+        <div className="flex-1 text-left">
+          <div className="text-sm font-bold text-white mb-1 drop-shadow-lg">
+            Achievement Unlocked!
+          </div>
+          <div className="text-xs text-white text-opacity-90 drop-shadow-lg">
+            {achievement.title}
+          </div>
+        </div>
+      </button>
+    </div>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 100,
-    left: 20,
-    right: 20,
-    zIndex: 2000,
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(46, 204, 113, 0.95)',
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 2,
-    borderColor: 'rgba(46, 204, 113, 0.3)',
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  icon: {
-    fontSize: 24,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  description: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-}); 
+}; 
