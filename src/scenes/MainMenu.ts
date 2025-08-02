@@ -1,6 +1,7 @@
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '@/components/Game';
 import { Umi } from '@metaplex-foundation/umi';
 import { Scene, GameObjects } from 'phaser';
+import { SoundManager } from '../systems/SoundManager';
 
 export class MainMenu extends Scene {
     private umi!: Umi;
@@ -8,6 +9,7 @@ export class MainMenu extends Scene {
     private logo!: GameObjects.Text;
     private title!: GameObjects.Text;
     private buttons: GameObjects.Text[] = [];
+    private soundManager!: SoundManager;
 
     constructor() {
         super('MainMenu');
@@ -18,6 +20,13 @@ export class MainMenu extends Scene {
     }
 
     create() {
+        // Initialize sound manager
+        this.soundManager = new SoundManager(this);
+        this.soundManager.initialize();
+        
+        // Start menu music
+        this.soundManager.playMusic('menu');
+
         this.createBackground();
         this.createLogo();
         this.createButtons();
@@ -87,17 +96,28 @@ export class MainMenu extends Scene {
             }).setOrigin(0.5);
 
             button.setInteractive();
-            button.on('pointerdown', () => {
-                this.scene.start(config.scene, { umi: this.umi });
-            });
-
-            // Hover effects
+            
+            // Add hover sound
             button.on('pointerover', () => {
                 button.setBackgroundColor('rgba(102, 126, 234, 0.3)');
+                this.soundManager.playUIHover();
             });
 
             button.on('pointerout', () => {
                 button.setBackgroundColor('rgba(255, 255, 255, 0.1)');
+            });
+
+            button.on('pointerdown', () => {
+                this.soundManager.playUIClick();
+                this.soundManager.vibrateShort();
+                
+                // Fade out music before scene transition
+                this.soundManager.fadeMusic(500);
+                
+                // Delay scene transition to allow music fade
+                this.time.delayedCall(500, () => {
+                    this.scene.start(config.scene, { umi: this.umi });
+                });
             });
 
             this.buttons.push(button);
@@ -129,5 +149,12 @@ export class MainMenu extends Scene {
                 ease: 'Back.easeOut'
             });
         });
+    }
+
+    shutdown() {
+        // Clean up sound manager when scene is destroyed
+        if (this.soundManager) {
+            this.soundManager.destroy();
+        }
     }
 }

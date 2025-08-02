@@ -6,21 +6,67 @@ export class Preloader extends Scene {
     }
 
     init() {
-        //  We loaded this image in our Boot Scene, so we can display it here
-        this.add.image(320, 240, 'background');
+        //  A simple progress bar. This is the outline of the progress bar.
+        const progressBar = this.add.graphics();
+        const progressBox = this.add.graphics();
+        progressBox.fillStyle(0x222222, 0.8);
+        progressBox.fillRect(240, 270, 320, 50);
 
-        //  A simple progress bar. This is the outline of the bar.
-        this.add.rectangle(320, 240, 320, 32).setStrokeStyle(1, 0xffffff);
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+        const loadingText = this.make.text({
+            x: width / 2,
+            y: height / 2 - 50,
+            text: 'Loading...',
+            style: {
+                font: '20px monospace',
+                color: '#ffffff'
+            }
+        });
+        loadingText.setOrigin(0.5, 0.5);
 
-        //  This is the progress bar itself. It will increase in size from the left based on the % of progress.
-        const bar = this.add.rectangle(320 - 230, 240, 4, 28, 0xffffff);
+        const percentText = this.make.text({
+            x: width / 2,
+            y: height / 2 - 5,
+            text: '0%',
+            style: {
+                font: '18px monospace',
+                color: '#ffffff'
+            }
+        });
+        percentText.setOrigin(0.5, 0.5);
 
-        //  Use the 'progress' event emitted by the LoaderPlugin to update the loading bar
+        const assetText = this.make.text({
+            x: width / 2,
+            y: height / 2 + 50,
+            text: '',
+            style: {
+                font: '14px monospace',
+                color: '#ffffff'
+            }
+        });
+        assetText.setOrigin(0.5, 0.5);
+
+        //  Update the progress bar as files are loaded
         this.load.on('progress', (progress: number) => {
+            percentText.setText(Math.round(progress * 100) + '%');
+            progressBar.clear();
+            progressBar.fillStyle(0xffffff, 1);
+            progressBar.fillRect(250, 280, 300 * progress, 30);
+        });
 
-            //  Update the progress bar (our bar is 464px wide, so 100% = 464px)
-            bar.width = 4 + (460 * progress);
+        //  Update the progress bar as files are loaded
+        this.load.on('fileprogress', (file: any) => {
+            assetText.setText('Loading asset: ' + file.key);
+        });
 
+        //  Remove the progress bar when complete
+        this.load.on('complete', () => {
+            progressBar.destroy();
+            progressBox.destroy();
+            loadingText.destroy();
+            percentText.destroy();
+            assetText.destroy();
         });
     }
 
@@ -59,6 +105,20 @@ export class Preloader extends Scene {
         this.load.audio('pickupCoin', 'pickupCoin.wav');
         this.load.audio('powerUp', 'powerUp.wav');
         this.load.audio('synth', 'synth.wav');
+
+        // Load additional sound effects (using existing files as placeholders)
+        this.load.audio('uiClick', 'pickupCoin.wav'); // Using pickup sound for UI clicks
+        this.load.audio('uiHover', 'powerUp.wav'); // Using powerup sound for UI hover
+        this.load.audio('gameStart', 'explosion.wav'); // Using explosion for game start
+        this.load.audio('gameOver', 'hitHurt.wav'); // Using hit sound for game over
+        this.load.audio('levelUp', 'synth.wav'); // Using synth for level up
+
+        // Load background music tracks
+        this.load.setPath('assets/music');
+        this.load.audio('music_menu', 'CC8a1a.m4a');
+        this.load.audio('music_gameplay', 'cCC1a.m4a');
+        this.load.audio('music_boss', 'nc2.m4a');
+        this.load.audio('music_victory', 'KR1.m4a');
     }
 
     create() {
