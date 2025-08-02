@@ -3,7 +3,7 @@ import { Umi } from '@metaplex-foundation/umi';
 import { Scene } from 'phaser';
 import { Player } from '@/entities/Player';
 import { EnemyEntity } from '@/entities/Enemy';
-import { EnemyManager } from '@/systems/EnemyManager';
+import { EnemyManager, Enemy } from '@/systems/EnemyManager';
 import { ScoreManager } from '@/systems/ScoreManager';
 import { SoundManager } from '@/systems/SoundManager';
 import { GameHUD } from '@/systems/GameHUD';
@@ -16,7 +16,7 @@ export class Game extends Scene {
     private scoreManager!: ScoreManager;
     private soundManager!: SoundManager;
     private gameHUD!: GameHUD;
-    private enemies: EnemyEntity[] = [];
+    private enemies: Enemy[] = [];
     private platforms!: Phaser.Physics.Arcade.StaticGroup;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private gameStarted: boolean = false;
@@ -49,6 +49,9 @@ export class Game extends Scene {
         this.gameStarted = true;
         this.scoreManager.startGame();
         this.waveStartTime = Date.now();
+        
+        // Start the first wave immediately
+        this.enemyManager.nextWave();
     }
 
     private setupGame(): void {
@@ -124,20 +127,21 @@ export class Game extends Scene {
 
     private setupCollisions(): void {
         // Player-Platform collisions
-        this.physics.add.collider(this.player.sprite, this.platforms);
+        if (this.player.sprite && this.platforms) {
+            this.physics.add.collider(this.player.sprite, this.platforms);
+        }
 
         // Player-Enemy collisions will be set up dynamically when enemies are spawned
     }
 
     private setupEventListeners(): void {
         // Listen for enemy spawn events
-        EventCenter.on('enemySpawned', (enemy: EnemyEntity) => {
-            this.enemies.push(enemy);
-            this.physics.add.collider(this.player.sprite, enemy.sprite, this.handlePlayerEnemyCollision, undefined, this);
+        EventCenter.on('enemySpawned', (data: { type: any }) => {
+            this.createEnemy(data.type);
         });
 
         // Listen for enemy death events
-        EventCenter.on('enemyDied', (enemy: EnemyEntity) => {
+        EventCenter.on('enemyDied', (enemy: Enemy) => {
             this.handleEnemyDeath(enemy);
         });
 
@@ -161,15 +165,29 @@ export class Game extends Scene {
         });
     }
 
-    private spawnEnemy(enemyType: any): void {
-        const enemy = new EnemyEntity(this, {
-            x: Math.random() * 800,
-            y: 0,
-            type: enemyType
-        });
-
+    private createEnemy(enemyType: any): void {
+        // Create enemy sprite
+        const spawnX = Math.random() * 800;
+        const spawnY = 0;
+        
+        const enemySprite = this.physics.add.sprite(spawnX, spawnY, enemyType.spriteKey);
+        
+        // Create enemy instance
+        const enemy = new Enemy(enemySprite, enemyType);
+        
+        // Add to enemy manager
+        this.enemyManager.addEnemy(enemy);
+        
+        // Add to local enemies array
         this.enemies.push(enemy);
-        this.physics.add.collider(this.player.sprite, enemy.sprite, this.handlePlayerEnemyCollision, undefined, this);
+        
+        // Setup collisions
+        if (this.player.sprite && enemy.sprite) {
+            this.physics.add.collider(this.player.sprite, enemy.sprite, this.handlePlayerEnemyCollision, undefined, this);
+        }
+        if (enemy.sprite && this.platforms) {
+            this.physics.add.collider(enemy.sprite, this.platforms);
+        }
         
         // Play roar sound when enemy spawns
         this.soundManager.playRoar();
@@ -252,11 +270,17 @@ export class Game extends Scene {
         }
     }
 
-    private handleEnemyDeath(enemy: EnemyEntity): void {
-        // Remove enemy from array
+    private handleEnemyDeath(enemy: Enemy): void {
+        // Remove enemy from arrays
         const index = this.enemies.indexOf(enemy);
         if (index > -1) {
             this.enemies.splice(index, 1);
+        }
+        this.enemyManager.removeEnemy(enemy);
+
+        // Destroy enemy sprite
+        if (enemy.sprite) {
+            enemy.sprite.destroy();
         }
 
         // Play death sound
@@ -268,7 +292,7 @@ export class Game extends Scene {
         this.gameHUD.updateScore(this.scoreManager.getCurrentScore());
 
         // Check if wave is complete
-        if (this.enemies.length === 0) {
+        if (this.enemyManager.isWaveComplete()) {
             this.completeWave();
         }
     }
@@ -280,9 +304,6 @@ export class Game extends Scene {
         this.soundManager.playGameOver();
         this.soundManager.fadeMusic(1000);
         this.soundManager.vibratePattern();
-        
-        // Stop all game systems - EnemyManager doesn't have a stop method, so we just set gameOver
-        // this.waveInProgress = false; // This line was removed from the new_code, so it's removed here.
         
         // Transition to game over scene
         this.time.delayedCall(2000, () => {
@@ -305,7 +326,6 @@ export class Game extends Scene {
 
         // Update enemy manager and AI
         this.enemyManager.update(time, delta, this.player.sprite);
-        this.updateEnemyAI();
 
         // Update score manager
         this.scoreManager.updateSurvivalBonus();
@@ -336,7 +356,7 @@ export class Game extends Scene {
             this.player.move('stop');
         }
 
-        if (up?.isDown && this.player.sprite.body?.touching.down) {
+        if (up?.isDown && this.player.sprite.body && this.player.sprite.body.touching.down) {
             this.player.jump();
         }
     }
@@ -348,54 +368,6 @@ export class Game extends Scene {
         this.gameHUD.updateScore(this.scoreManager.getCurrentScore());
         this.gameHUD.updateDifficultyLevel(this.currentWave);
         this.gameHUD.updateShieldStatus(this.player.isShieldActive);
-    }
-
-    private updateEnemyAI(): void {
-        this.enemies.forEach(enemy => {
-            const distance = Phaser.Math.Distance.Between(
-                this.player.sprite.x,
-                this.player.sprite.y,
-                enemy.sprite.x,
-                enemy.sprite.y
-            );
-
-            if (enemy.type.behavior === 'chase') {
-                this.updateChaseBehavior(enemy, distance);
-            } else if (enemy.type.behavior === 'ranged') {
-                this.updateRangedBehavior(enemy, distance);
-            }
-        });
-    }
-
-    private updateChaseBehavior(enemy: EnemyEntity, distance: number): void {
-        if (distance < 200) {
-            // Chase player
-            const direction = this.player.sprite.x > enemy.sprite.x ? 1 : -1;
-            enemy.moveTowards(this.player.sprite.x, this.player.sprite.y, enemy.stats.speed);
-        } else {
-            // Patrol - enemy will handle this internally
-        }
-
-        // Attack if close enough
-        if (distance < 50 && enemy.canAttack()) {
-            enemy.performAttack();
-        }
-    }
-
-    private updateRangedBehavior(enemy: EnemyEntity, distance: number): void {
-        if (distance < 300) {
-            // Keep distance and shoot
-            const direction = this.player.sprite.x > enemy.sprite.x ? -1 : 1;
-            enemy.moveTowards(this.player.sprite.x, this.player.sprite.y, enemy.stats.speed * 0.7);
-            
-            if (distance > 100 && enemy.canAttack()) {
-                enemy.performAttack();
-            }
-        } else {
-            // Move towards player
-            const direction = this.player.sprite.x > enemy.sprite.x ? 1 : -1;
-            enemy.moveTowards(this.player.sprite.x, this.player.sprite.y, enemy.stats.speed);
-        }
     }
 
     private completeWave(): void {

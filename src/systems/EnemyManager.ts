@@ -1,3 +1,5 @@
+import EventCenter from '@/events/eventCenter';
+
 export interface EnemyStats {
     health: number;
     maxHealth: number;
@@ -46,6 +48,24 @@ export class Enemy {
 
     public getHealthPercentage(): number {
         return (this.stats.health / this.stats.maxHealth) * 100;
+    }
+
+    public moveTowards(targetX: number, targetY: number, speed: number): void {
+        if (!this.sprite) return;
+        
+        const angle = Phaser.Math.Angle.Between(this.sprite.x, this.sprite.y, targetX, targetY);
+        this.sprite.setVelocity(
+            Math.cos(angle) * speed,
+            Math.sin(angle) * speed
+        );
+    }
+
+    public update(time: number, delta: number): void {
+        // Basic enemy update logic
+        if (!this.sprite) return;
+        
+        // Update any enemy-specific logic here
+        // For now, just ensure the sprite exists
     }
 }
 
@@ -99,7 +119,7 @@ export class EnemyManager {
             spawnRate: 0.3
         });
 
-        // Advanced virus enemy
+        // Hard difficulty virus enemy
         this.enemyTypes.set('virus', {
             id: 'virus',
             name: 'Virus',
@@ -107,10 +127,10 @@ export class EnemyManager {
             stats: {
                 health: 100,
                 maxHealth: 100,
-                attackPower: 25,
+                attackPower: 20,
                 speed: 120,
                 damage: 12,
-                points: 35
+                points: 30
             },
             behavior: 'ranged',
             spawnRate: 0.1
@@ -156,9 +176,7 @@ export class EnemyManager {
         if (!enemyType) return;
 
         // Emit spawn event for the scene to handle
-        if (typeof window !== 'undefined' && (window as any).EventCenter) {
-            (window as any).EventCenter.emit('enemySpawned', { type: enemyType });
-        }
+        EventCenter.emit('enemySpawned', { type: enemyType });
         
         this.enemiesSpawnedThisWave++;
     }
@@ -202,7 +220,7 @@ export class EnemyManager {
 
     private updatePatrolBehavior(enemy: Enemy): void {
         // Simple patrol behavior - move back and forth
-        if (!enemy.sprite) return;
+        if (!enemy.sprite || !enemy.sprite.body) return;
 
         const patrolSpeed = enemy.stats.speed * 0.5;
         enemy.sprite.setVelocityX(patrolSpeed);
@@ -232,9 +250,7 @@ export class EnemyManager {
             if (enemy.canAttack()) {
                 enemy.performAttack();
                 // Emit attack event
-                if (typeof window !== 'undefined' && (window as any).EventCenter) {
-                    (window as any).EventCenter.emit('enemyAttack', { enemy, damage: enemy.stats.damage });
-                }
+                EventCenter.emit('enemyAttack', { enemy, damage: enemy.stats.damage });
             }
         }
     }
@@ -265,9 +281,7 @@ export class EnemyManager {
             if (enemy.canAttack()) {
                 enemy.performAttack();
                 // Emit ranged attack event
-                if (typeof window !== 'undefined' && (window as any).EventCenter) {
-                    (window as any).EventCenter.emit('enemyRangedAttack', { enemy, damage: enemy.stats.damage });
-                }
+                EventCenter.emit('enemyRangedAttack', { enemy, damage: enemy.stats.damage });
             }
         }
     }
@@ -306,14 +320,5 @@ export class EnemyManager {
 
     public getEnemyTypes(): Map<string, EnemyType> {
         return new Map(this.enemyTypes);
-    }
-}
-
-// Extend global EventCenter type
-declare global {
-    interface Window {
-        EventCenter?: {
-            emit: (event: string, data: any) => void;
-        };
     }
 } 
