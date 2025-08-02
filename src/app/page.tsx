@@ -8,7 +8,8 @@ import { TipLinkModalTheme, TipLinkWalletModalProvider, WalletDisconnectButton, 
 import dynamic from "next/dynamic";
 import { useMemo, useState, useEffect } from "react";
 import GameWorld from "@/components/GameWorld";
-import WorldNavigation from "@/components/WorldNavigation";
+import { WorldNavigation } from "@/components/WorldNavigation";
+import { TutorialButton } from "@/components/TutorialButton";
 
 const Game = dynamic(() => import('@/components/Game'), { ssr: false });
 
@@ -53,7 +54,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isClient]);
 
-  const handleEnterZone = (zoneId: string) => {
+  const handleZoneSelect = (zoneId: string) => {
     setSelectedZone(zoneId);
     setCurrentView('game');
   };
@@ -61,13 +62,13 @@ export default function Home() {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'world':
-        return <GameWorld onEnterZone={handleEnterZone} />;
+        return <GameWorld onEnterZone={handleZoneSelect} />;
       case 'navigation':
-        return <WorldNavigation onEnterZone={handleEnterZone} />;
+        return <WorldNavigation onZoneSelect={handleZoneSelect} currentZone={selectedZone} />;
       case 'game':
         return <Game selectedZone={selectedZone} />;
       default:
-        return <GameWorld onEnterZone={handleEnterZone} />;
+        return <GameWorld onEnterZone={handleZoneSelect} />;
     }
   };
 
@@ -103,7 +104,7 @@ export default function Home() {
                             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                         }`}
                       >
-                        📊 Progress
+                        📊 Zone Selection
                       </button>
                       <button
                         onClick={() => setCurrentView('game')}
@@ -120,6 +121,7 @@ export default function Home() {
                   
                   {/* Wallet Connection */}
                   <div className="flex items-center space-x-4">
+                    <TutorialButton />
                     <div className="text-sm text-gray-300">
                       <span className="mr-2">🪙</span>
                       <span>Solana Wallet</span>
@@ -144,6 +146,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center space-x-4">
                     <span>🌌 Current View: {currentView}</span>
+                    <span>🎯 Selected Zone: {selectedZone}</span>
                     <span>🕐 {isClient ? currentTime : 'Loading...'}</span>
                   </div>
                 </div>

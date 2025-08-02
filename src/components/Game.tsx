@@ -10,6 +10,9 @@ import { GameOver } from '@/scenes/GameOver';
 import { WorldMapScene } from '@/scenes/WorldMapScene';
 import { TurnBasedCombatScene } from '@/scenes/TurnBasedCombatScene';
 import { ZoneCompleteScene } from '@/scenes/ZoneCompleteScene';
+import { SettingsScreen } from '@/scenes/SettingsScreen';
+import { TutorialScreen } from '@/scenes/TutorialScreen';
+import { LoadingScreen } from '@/scenes/LoadingScreen';
 import { useUmi } from '@/providers/useUmi';
 import EventCenter from '@/events/eventCenter';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -47,6 +50,7 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
             scene: [
                 Boot,
                 Preloader,
+                LoadingScreen,
                 WalletConnect,
                 MainMenu,
                 MainGame,
@@ -54,6 +58,8 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
                 WorldMapScene,
                 TurnBasedCombatScene,
                 ZoneCompleteScene,
+                SettingsScreen,
+                TutorialScreen,
             ],
             render: {
                 pixelArt: true,
@@ -70,7 +76,6 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
                     debug: false
                 }
             },
-
         };
         const game = new Phaser.Game(config)
         return () => {

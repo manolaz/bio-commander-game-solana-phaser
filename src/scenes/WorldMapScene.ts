@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 import { Player } from '@/entities/Player';
-import { TurnBasedCombatScene } from './TurnBasedCombatScene';
+import { TurnBasedCombatScene } from '@/scenes/TurnBasedCombatScene';
 
 export interface HexTile {
     x: number;
@@ -268,8 +268,8 @@ export class WorldMapScene extends Scene {
     }
 
     private setupInput(): void {
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.cursors = this.input.keyboard!.createCursorKeys();
+        this.spaceKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
 
     private setupUI(): void {
@@ -359,25 +359,22 @@ export class WorldMapScene extends Scene {
         const x = tile.x * this.hexSize * 1.5;
         const y = tile.y * this.hexSize * 1.3 + (tile.x % 2) * this.hexSize * 0.65;
         
-        // Create discovery particle effect
-        const particles = this.add.particles('particle');
-        const emitter = particles.createEmitter({
-            x: x,
-            y: y,
-            speed: { min: 50, max: 100 },
-            scale: { start: 0.5, end: 0 },
-            alpha: { start: 1, end: 0 },
-            tint: 0xffff00,
-            lifespan: 1000,
-            quantity: 10
-        });
-
-        // Stop emitting after a short time
-        this.time.delayedCall(200, () => {
-            emitter.stop();
-            this.time.delayedCall(1000, () => {
-                particles.destroy();
-            });
+        // Create discovery effect using graphics
+        const discoveryEffect = this.add.graphics();
+        discoveryEffect.fillStyle(0xffff00, 0.8);
+        discoveryEffect.fillCircle(x, y, this.hexSize);
+        
+        // Animate the discovery effect
+        this.tweens.add({
+            targets: discoveryEffect,
+            scaleX: 2,
+            scaleY: 2,
+            alpha: 0,
+            duration: 1000,
+            ease: 'Power2',
+            onComplete: () => {
+                discoveryEffect.destroy();
+            }
         });
     }
 
@@ -570,8 +567,10 @@ export class WorldMapScene extends Scene {
         const statsText = this.uiContainer.getAt(1) as Phaser.GameObjects.Text;
         const progressText = this.uiContainer.getAt(2) as Phaser.GameObjects.Text;
         
-        statsText.setText(`Health: ${this.playerHealth}% | Energy: ${this.playerEnergy}%`);
-        progressText.setText(`Exploration: ${Math.round((this.discoveredTiles / this.totalTiles) * 100)}%`);
+        if (statsText && progressText) {
+            statsText.setText(`Health: ${this.playerHealth}% | Energy: ${this.playerEnergy}%`);
+            progressText.setText(`Exploration: ${Math.round((this.discoveredTiles / this.totalTiles) * 100)}%`);
+        }
     }
 
     private canMoveTo(newX: number, newY: number): boolean {
@@ -582,6 +581,9 @@ export class WorldMapScene extends Scene {
     private movePlayer(direction: 'up' | 'down' | 'left' | 'right'): void {
         let newX = this.playerTile.x;
         let newY = this.playerTile.y;
+        
+        // Hexagonal movement system
+        const isEvenRow = this.playerTile.y % 2 === 0;
         
         switch (direction) {
             case 'up':
