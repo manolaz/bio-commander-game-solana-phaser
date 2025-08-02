@@ -163,7 +163,7 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
               </Text>
               <Text style={styles.versionText}>Version 1.0.0</Text>
               <Text style={styles.descriptionText}>
-                Defend the human body from pathogens in this exciting beat 'em up adventure!
+                Defend the human body from pathogens in this exciting beat &apos;em up adventure!
               </Text>
             </View>
           </View>

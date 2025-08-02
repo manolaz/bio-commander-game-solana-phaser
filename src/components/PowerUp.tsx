@@ -26,7 +26,7 @@ const POWER_UP_CONFIG = {
  * Power-Up Component
  * Renders collectible power-ups with animations
  */
-export const PowerUp: React.FC<PowerUpProps> = React.memo(({ powerUp }) => {
+const PowerUpComponent: React.FC<PowerUpProps> = ({ powerUp }) => {
   const config = POWER_UP_CONFIG[powerUp.type];
 
   if (powerUp.collected) return null;
@@ -91,3 +91,6 @@ const styles = StyleSheet.create({
     left: -4,
   },
 });
+
+export const PowerUp = React.memo(PowerUpComponent);
+PowerUp.displayName = 'PowerUp';

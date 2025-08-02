@@ -22,7 +22,7 @@ interface EnemyProps {
  * Renders individual enemy entities with health bars and animations
  * Supports different enemy types with unique visual characteristics
  */
-export const Enemy: React.FC<EnemyProps> = React.memo(({ enemy }) => {
+const EnemyComponent: React.FC<EnemyProps> = ({ enemy }) => {
   const enemyConfig = ENEMY_TYPES[enemy.type];
   const healthPercentage = (enemy.hp / enemy.maxHp) * 100;
 
@@ -124,3 +124,6 @@ const styles = StyleSheet.create({
     left: -4,
   },
 });
+
+export const Enemy = React.memo(EnemyComponent);
+Enemy.displayName = 'Enemy';
