@@ -2,6 +2,7 @@ import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '@/components/Game';
 import { Umi } from '@metaplex-foundation/umi';
 import { Scene, GameObjects } from 'phaser';
 import { SoundManager } from '../systems/SoundManager';
+import EventCenter from '@/events/eventCenter';
 
 export class MainMenu extends Scene {
     private umi!: Umi;
@@ -10,6 +11,7 @@ export class MainMenu extends Scene {
     private title!: GameObjects.Text;
     private buttons: GameObjects.Text[] = [];
     private soundManager!: SoundManager;
+    private selectedZone: string = 'heart';
 
     constructor() {
         super('MainMenu');
@@ -20,6 +22,11 @@ export class MainMenu extends Scene {
     }
 
     create() {
+        // Listen for selected zone
+        EventCenter.on('selectedZone', (zoneId: string) => {
+            this.selectedZone = zoneId;
+        });
+
         // Initialize sound manager
         this.soundManager = new SoundManager(this);
         this.soundManager.initialize();
@@ -70,8 +77,16 @@ export class MainMenu extends Scene {
             color: 'rgba(255, 255, 255, 0.7)'
         }).setOrigin(0.5);
 
+        // Zone info
+        this.add.text(DEFAULT_WIDTH / 2, DEFAULT_HEIGHT * 0.48, `Selected Zone: ${this.selectedZone}`, {
+            fontSize: '14px',
+            color: '#9b59b6',
+            stroke: '#000000',
+            strokeThickness: 2
+        }).setOrigin(0.5);
+
         // Wallet info
-        this.add.text(DEFAULT_WIDTH / 2, DEFAULT_HEIGHT * 0.5, this.umi.identity.publicKey.toString(), {
+        this.add.text(DEFAULT_WIDTH / 2, DEFAULT_HEIGHT * 0.55, this.umi.identity.publicKey.toString(), {
             fontSize: '14px',
             color: '#0f0',
             stroke: '#000000',
@@ -81,9 +96,9 @@ export class MainMenu extends Scene {
 
     private createButtons() {
         const buttonConfigs = [
-            { text: 'Start Game', scene: 'Game', y: 0.65 },
-            { text: 'Tutorial', scene: 'TutorialScreen', y: 0.75 },
-            { text: 'Settings', scene: 'SettingsScreen', y: 0.85 }
+            { text: 'Start Game', scene: 'Game', y: 0.7 },
+            { text: 'Tutorial', scene: 'TutorialScreen', y: 0.8 },
+            { text: 'Settings', scene: 'SettingsScreen', y: 0.9 }
         ];
 
         buttonConfigs.forEach(config => {
@@ -116,7 +131,14 @@ export class MainMenu extends Scene {
                 
                 // Delay scene transition to allow music fade
                 this.time.delayedCall(500, () => {
-                    this.scene.start(config.scene, { umi: this.umi });
+                    if (config.scene === 'Game') {
+                        this.scene.start(config.scene, { 
+                            umi: this.umi, 
+                            selectedZone: this.selectedZone 
+                        });
+                    } else {
+                        this.scene.start(config.scene, { umi: this.umi });
+                    }
                 });
             });
 

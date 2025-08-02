@@ -18,6 +18,36 @@ export interface EnemyType {
     spawnRate: number;
 }
 
+export interface ZoneConfig {
+    id: string;
+    name: string;
+    emoji: string;
+    enemies: EnemyConfig[];
+    powerUps: PowerUpConfig[];
+    background: string;
+    difficulty: number;
+}
+
+export interface EnemyConfig {
+    type: 'virus' | 'bacteria' | 'fungi';
+    name: string;
+    spriteKey: string;
+    health: number;
+    damage: number;
+    speed: number;
+    points: number;
+    spawnRate: number;
+}
+
+export interface PowerUpConfig {
+    type: string;
+    name: string;
+    spriteKey: string;
+    value: number;
+    rarity: string;
+    spawnRate: number;
+}
+
 export class Enemy {
     public sprite: Phaser.Physics.Arcade.Sprite;
     public stats: EnemyStats;
@@ -79,17 +109,73 @@ export class EnemyManager {
     private enemiesPerWave: number = 5;
     private enemiesSpawnedThisWave: number = 0;
     private waveInProgress: boolean = false;
+    private zoneConfig: ZoneConfig | null = null;
 
     constructor() {
         this.initializeEnemyTypes();
     }
 
+    public setZoneConfig(config: ZoneConfig): void {
+        this.zoneConfig = config;
+        this.updateEnemyTypesForZone();
+    }
+
+    private updateEnemyTypesForZone(): void {
+        if (!this.zoneConfig) return;
+
+        // Clear existing enemy types
+        this.enemyTypes.clear();
+
+        // Add zone-specific enemies
+        this.zoneConfig.enemies.forEach(enemyConfig => {
+            const enemyType: EnemyType = {
+                id: enemyConfig.type,
+                name: enemyConfig.name,
+                spriteKey: enemyConfig.spriteKey,
+                stats: {
+                    health: enemyConfig.health,
+                    maxHealth: enemyConfig.health,
+                    attackPower: enemyConfig.damage,
+                    speed: enemyConfig.speed * 50, // Convert to pixel speed
+                    damage: enemyConfig.damage,
+                    points: enemyConfig.points
+                },
+                behavior: this.getBehaviorForType(enemyConfig.type),
+                spawnRate: enemyConfig.spawnRate
+            };
+
+            this.enemyTypes.set(enemyConfig.type, enemyType);
+        });
+
+        // Adjust difficulty based on zone
+        this.adjustDifficultyForZone();
+    }
+
+    private getBehaviorForType(type: string): 'patrol' | 'chase' | 'ranged' | 'boss' {
+        switch (type) {
+            case 'virus': return 'ranged';
+            case 'bacteria': return 'chase';
+            case 'fungi': return 'patrol';
+            default: return 'patrol';
+        }
+    }
+
+    private adjustDifficultyForZone(): void {
+        if (!this.zoneConfig) return;
+
+        // Adjust spawn rates and intervals based on zone difficulty
+        const difficultyMultiplier = this.zoneConfig.difficulty;
+        this.spawnInterval = Math.max(500, 2000 - (difficultyMultiplier * 200));
+        this.maxEnemies = Math.min(15, 5 + difficultyMultiplier * 2);
+        this.enemiesPerWave = Math.min(25, 3 + difficultyMultiplier * 3);
+    }
+
     private initializeEnemyTypes(): void {
-        // Basic bacteria enemy
+        // Default enemy types (fallback)
         this.enemyTypes.set('bacteria', {
             id: 'bacteria',
             name: 'Bacteria',
-            spriteKey: 'dude', // Using existing sprite for now
+            spriteKey: 'dude',
             stats: {
                 health: 30,
                 maxHealth: 30,
@@ -102,7 +188,6 @@ export class EnemyManager {
             spawnRate: 0.6
         });
 
-        // Medium difficulty fungi enemy
         this.enemyTypes.set('fungi', {
             id: 'fungi',
             name: 'Fungi',
@@ -119,7 +204,6 @@ export class EnemyManager {
             spawnRate: 0.3
         });
 
-        // Hard difficulty virus enemy
         this.enemyTypes.set('virus', {
             id: 'virus',
             name: 'Virus',

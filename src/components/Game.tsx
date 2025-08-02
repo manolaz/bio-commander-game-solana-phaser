@@ -14,7 +14,11 @@ import { useWallet } from '@solana/wallet-adapter-react';
 export const DEFAULT_WIDTH: number = 800;
 export const DEFAULT_HEIGHT: number = 600;
 
-const Game = () => {
+interface GameProps {
+  selectedZone?: string;
+}
+
+const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
     const wallet = useWallet();
     const umi = useUmi();
     const [ready, setReady] = useState(false);
@@ -30,6 +34,9 @@ const Game = () => {
     }, [ready, wallet.connected, umi]);
 
     useEffect(() => {
+        // Pass the selected zone to the game
+        EventCenter.emit("selectedZone", selectedZone);
+        
         const config: Phaser.Types.Core.GameConfig = {
             width: DEFAULT_WIDTH,
             height: DEFAULT_HEIGHT,
@@ -63,7 +70,7 @@ const Game = () => {
         return () => {
             game.destroy(true)
         }
-    }, [])
+    }, [selectedZone])
     return (
         <div>
 

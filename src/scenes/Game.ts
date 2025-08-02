@@ -9,6 +9,36 @@ import { SoundManager } from '@/systems/SoundManager';
 import { GameHUD } from '@/systems/GameHUD';
 import EventCenter from '@/events/eventCenter';
 
+interface ZoneConfig {
+  id: string;
+  name: string;
+  emoji: string;
+  enemies: EnemyConfig[];
+  powerUps: PowerUpConfig[];
+  background: string;
+  difficulty: number;
+}
+
+interface EnemyConfig {
+  type: 'virus' | 'bacteria' | 'fungi';
+  name: string;
+  spriteKey: string;
+  health: number;
+  damage: number;
+  speed: number;
+  points: number;
+  spawnRate: number;
+}
+
+interface PowerUpConfig {
+  type: string;
+  name: string;
+  spriteKey: string;
+  value: number;
+  rarity: string;
+  spawnRate: number;
+}
+
 export class Game extends Scene {
     private umi!: Umi;
     private player!: Player;
@@ -23,13 +53,165 @@ export class Game extends Scene {
     private gameOver: boolean = false;
     private currentWave: number = 1;
     private waveStartTime: number = 0;
+    private selectedZone: string = 'heart';
+    private zoneConfig!: ZoneConfig;
 
     constructor() {
         super('Game');
     }
 
-    init(args: { umi: Umi }) {
+    init(args: { umi: Umi; selectedZone?: string }) {
         this.umi = args.umi;
+        this.selectedZone = args.selectedZone || 'heart';
+        this.zoneConfig = this.getZoneConfig(this.selectedZone);
+    }
+
+    private getZoneConfig(zoneId: string): ZoneConfig {
+        const zoneConfigs: Record<string, ZoneConfig> = {
+            heart: {
+                id: 'heart',
+                name: 'Heart',
+                emoji: '❤️',
+                background: 'heart_bg',
+                difficulty: 1,
+                enemies: [
+                    {
+                        type: 'virus',
+                        name: 'Corona Virus',
+                        spriteKey: 'virus1',
+                        health: 100,
+                        damage: 25,
+                        speed: 2,
+                        points: 100,
+                        spawnRate: 0.3
+                    },
+                    {
+                        type: 'virus',
+                        name: 'Flu Virus',
+                        spriteKey: 'virus2',
+                        health: 75,
+                        damage: 15,
+                        speed: 3,
+                        points: 75,
+                        spawnRate: 0.5
+                    }
+                ],
+                powerUps: [
+                    {
+                        type: 'health',
+                        name: 'Heart Health',
+                        spriteKey: 'health_powerup',
+                        value: 50,
+                        rarity: 'common',
+                        spawnRate: 0.2
+                    },
+                    {
+                        type: 'shield',
+                        name: 'Cardiac Shield',
+                        spriteKey: 'shield_powerup',
+                        value: 30,
+                        rarity: 'rare',
+                        spawnRate: 0.1
+                    }
+                ]
+            },
+            lungs: {
+                id: 'lungs',
+                name: 'Lungs',
+                emoji: '🫁',
+                background: 'lungs_bg',
+                difficulty: 2,
+                enemies: [
+                    {
+                        type: 'bacteria',
+                        name: 'Pneumonia',
+                        spriteKey: 'bacteria1',
+                        health: 150,
+                        damage: 30,
+                        speed: 1,
+                        points: 150,
+                        spawnRate: 0.4
+                    },
+                    {
+                        type: 'bacteria',
+                        name: 'Tuberculosis',
+                        spriteKey: 'bacteria2',
+                        health: 200,
+                        damage: 40,
+                        speed: 1,
+                        points: 200,
+                        spawnRate: 0.2
+                    }
+                ],
+                powerUps: [
+                    {
+                        type: 'energy',
+                        name: 'Oxygen Boost',
+                        spriteKey: 'energy_powerup',
+                        value: 75,
+                        rarity: 'epic',
+                        spawnRate: 0.15
+                    },
+                    {
+                        type: 'shield',
+                        name: 'Breath Shield',
+                        spriteKey: 'shield_powerup',
+                        value: 45,
+                        rarity: 'rare',
+                        spawnRate: 0.1
+                    }
+                ]
+            },
+            brain: {
+                id: 'brain',
+                name: 'Brain',
+                emoji: '🧠',
+                background: 'brain_bg',
+                difficulty: 3,
+                enemies: [
+                    {
+                        type: 'bacteria',
+                        name: 'Meningitis',
+                        spriteKey: 'bacteria3',
+                        health: 300,
+                        damage: 50,
+                        speed: 2,
+                        points: 300,
+                        spawnRate: 0.3
+                    },
+                    {
+                        type: 'virus',
+                        name: 'Encephalitis',
+                        spriteKey: 'virus3',
+                        health: 250,
+                        damage: 45,
+                        speed: 3,
+                        points: 250,
+                        spawnRate: 0.4
+                    }
+                ],
+                powerUps: [
+                    {
+                        type: 'speed',
+                        name: 'Neural Boost',
+                        spriteKey: 'speed_powerup',
+                        value: 100,
+                        rarity: 'legendary',
+                        spawnRate: 0.05
+                    },
+                    {
+                        type: 'shield',
+                        name: 'Mind Shield',
+                        spriteKey: 'shield_powerup',
+                        value: 60,
+                        rarity: 'epic',
+                        spawnRate: 0.1
+                    }
+                ]
+            }
+        };
+
+        return zoneConfigs[zoneId] || zoneConfigs.heart;
     }
 
     create() {
@@ -55,8 +237,9 @@ export class Game extends Scene {
     }
 
     private setupGame(): void {
-        // Create background
-        this.add.image(400, 300, 'sky');
+        // Create background based on zone
+        const backgroundKey = this.zoneConfig.background || 'sky';
+        this.add.image(400, 300, backgroundKey);
 
         // Create platforms
         this.platforms = this.physics.add.staticGroup();
@@ -65,8 +248,9 @@ export class Game extends Scene {
         this.platforms.create(100, 300, 'ground').setScale(0.5, 1).refreshBody();
         this.platforms.create(700, 300, 'ground').setScale(0.5, 1).refreshBody();
 
-        // Initialize game systems
+        // Initialize game systems with zone configuration
         this.enemyManager = new EnemyManager();
+        this.enemyManager.setZoneConfig(this.zoneConfig);
         this.scoreManager = new ScoreManager();
         this.soundManager = new SoundManager(this);
         this.soundManager.initialize();
@@ -92,7 +276,7 @@ export class Game extends Scene {
     }
 
     private setupUI(): void {
-        // Create GameHUD
+        // Create GameHUD with zone information
         this.gameHUD = new GameHUD({
             scene: this,
             x: 20,
@@ -101,12 +285,49 @@ export class Game extends Scene {
             height: 120
         });
 
-        // Initialize HUD with player stats
+        // Initialize HUD with player stats and zone info
         this.gameHUD.updateHealth(this.player.getHealth(), this.player.getMaxHealth());
         this.gameHUD.updateEnergy(this.player.getEnergy(), this.player.getMaxEnergy());
         this.gameHUD.updateScore(0);
         this.gameHUD.updateDifficultyLevel(this.currentWave);
         this.gameHUD.updateShieldStatus(this.player.isShieldActive);
+        
+        // Add zone display to HUD
+        this.gameHUD.updateZoneInfo(this.zoneConfig.name, this.zoneConfig.emoji);
+
+        // Add back to menu button
+        this.createBackToMenuButton();
+    }
+
+    private createBackToMenuButton(): void {
+        const backButton = this.add.text(20, 20, '← Back to Menu', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#ffffff',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0, 0);
+
+        backButton.setInteractive();
+        backButton.setDepth(1001);
+
+        backButton.on('pointerover', () => {
+            backButton.setBackgroundColor('rgba(102, 126, 234, 0.7)');
+        });
+
+        backButton.on('pointerout', () => {
+            backButton.setBackgroundColor('rgba(0, 0, 0, 0.5)');
+        });
+
+        backButton.on('pointerdown', () => {
+            // Fade out music
+            this.soundManager.fadeMusic(500);
+            
+            // Return to main menu
+            this.time.delayedCall(500, () => {
+                this.scene.start('MainMenu', { umi: this.umi });
+            });
+        });
     }
 
     private setupInput(): void {
@@ -325,7 +546,9 @@ export class Game extends Scene {
         this.enemies.forEach(enemy => enemy.update(time, delta));
 
         // Update enemy manager and AI
-        this.enemyManager.update(time, delta, this.player.sprite);
+        if (this.player.sprite) {
+            this.enemyManager.update(time, delta, this.player.sprite);
+        }
 
         // Update score manager
         this.scoreManager.updateSurvivalBonus();
@@ -356,7 +579,7 @@ export class Game extends Scene {
             this.player.move('stop');
         }
 
-        if (up?.isDown && this.player.sprite.body && this.player.sprite.body.touching.down) {
+        if (up?.isDown && this.player.sprite?.body?.touching?.down) {
             this.player.jump();
         }
     }

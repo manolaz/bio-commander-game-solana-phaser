@@ -36,7 +36,11 @@ interface PowerUp {
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
 }
 
-const GameWorld: React.FC = () => {
+interface GameWorldProps {
+  onEnterZone?: (zoneId: string) => void;
+}
+
+const GameWorld: React.FC<GameWorldProps> = ({ onEnterZone }) => {
   const [currentZone, setCurrentZone] = useState<string>('heart');
   const [selectedEnemy, setSelectedEnemy] = useState<Enemy | null>(null);
   const [selectedPowerUp, setSelectedPowerUp] = useState<PowerUp | null>(null);
@@ -365,7 +369,15 @@ const GameWorld: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+              <button 
+                onClick={() => {
+                  if (onEnterZone) {
+                    onEnterZone(currentZone);
+                  }
+                  setShowDetails(false);
+                }}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+              >
                 🚀 Enter Zone
               </button>
               <button className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors">

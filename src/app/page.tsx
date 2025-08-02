@@ -20,6 +20,7 @@ export default function Home() {
   const [currentView, setCurrentView] = useState<GameView>('world');
   const [isClient, setIsClient] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [selectedZone, setSelectedZone] = useState<string>('heart');
   
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
   const network = WalletAdapterNetwork.Devnet;
@@ -52,16 +53,21 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isClient]);
 
+  const handleEnterZone = (zoneId: string) => {
+    setSelectedZone(zoneId);
+    setCurrentView('game');
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'world':
-        return <GameWorld />;
+        return <GameWorld onEnterZone={handleEnterZone} />;
       case 'navigation':
-        return <WorldNavigation />;
+        return <WorldNavigation onEnterZone={handleEnterZone} />;
       case 'game':
-        return <Game />;
+        return <Game selectedZone={selectedZone} />;
       default:
-        return <GameWorld />;
+        return <GameWorld onEnterZone={handleEnterZone} />;
     }
   };
 

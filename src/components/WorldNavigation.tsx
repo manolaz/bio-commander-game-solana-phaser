@@ -13,7 +13,11 @@ interface ZoneProgress {
   totalPowerUps: number;
 }
 
-const WorldNavigation: React.FC = () => {
+interface WorldNavigationProps {
+  onEnterZone?: (zoneId: string) => void;
+}
+
+const WorldNavigation: React.FC<WorldNavigationProps> = ({ onEnterZone }) => {
   const [selectedZone, setSelectedZone] = useState<string>('heart');
   const [showZoneDetails, setShowZoneDetails] = useState(false);
 
@@ -278,7 +282,15 @@ const WorldNavigation: React.FC = () => {
                   </div>
 
                   <div className="flex space-x-3">
-                    <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                    <button 
+                      onClick={() => {
+                        if (onEnterZone) {
+                          onEnterZone(selectedZone);
+                        }
+                        setShowZoneDetails(false);
+                      }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    >
                       🚀 Enter Zone
                     </button>
                     <button 

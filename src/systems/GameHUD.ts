@@ -19,6 +19,7 @@ export class GameHUD {
     private difficultyIndicator!: Phaser.GameObjects.Text;
     private timeIndicator!: Phaser.GameObjects.Text;
     private comboText!: Phaser.GameObjects.Text;
+    private zoneIndicator!: Phaser.GameObjects.Text;
     
     private x: number;
     private y: number;
@@ -36,6 +37,8 @@ export class GameHUD {
     private gameTime: number = 0;
     private healthBarColor: number = 0xe74c3c;
     private energyBarColor: number = 0x3498db;
+    private currentZone: string = 'Unknown';
+    private zoneEmoji: string = '🌍';
 
     constructor(config: GameHUDConfig) {
         this.scene = config.scene;
@@ -146,6 +149,18 @@ export class GameHUD {
             strokeThickness: 2
         });
         this.container.add(this.shieldIndicator);
+
+        // Zone indicator
+        this.zoneIndicator = this.scene.add.text(this.width / 2, 80, `${this.zoneEmoji} ${this.currentZone}`, {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#9b59b6',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 2
+        });
+        this.zoneIndicator.setOrigin(0.5, 0);
+        this.container.add(this.zoneIndicator);
 
         // Difficulty indicator
         this.difficultyIndicator = this.scene.add.text(this.width - 20, 20, 'Level 1', {
@@ -272,6 +287,12 @@ export class GameHUD {
         // Convert hex color string to number
         this.energyBarColor = parseInt(color.replace('#', ''), 16);
         this.updateEnergyBar();
+    }
+
+    public updateZoneInfo(zoneName: string, zoneEmoji: string): void {
+        this.currentZone = zoneName;
+        this.zoneEmoji = zoneEmoji;
+        this.zoneIndicator.setText(`${this.zoneEmoji} ${this.currentZone}`);
     }
 
     public update(delta: number): void {
