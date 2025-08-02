@@ -5,6 +5,7 @@ import { Player } from '@/entities/Player';
 import { EnemyEntity } from '@/entities/Enemy';
 import { EnemyManager } from '@/systems/EnemyManager';
 import { ScoreManager } from '@/systems/ScoreManager';
+import { SoundManager } from '@/systems/SoundManager';
 import EventCenter from '@/events/eventCenter';
 
 export class Game extends Scene {
@@ -12,6 +13,7 @@ export class Game extends Scene {
     private player!: Player;
     private enemyManager!: EnemyManager;
     private scoreManager!: ScoreManager;
+    private soundManager!: SoundManager;
     private enemies: EnemyEntity[] = [];
     private platforms!: Phaser.Physics.Arcade.StaticGroup;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -58,12 +60,13 @@ export class Game extends Scene {
         // Initialize game systems
         this.enemyManager = new EnemyManager();
         this.scoreManager = new ScoreManager();
+        this.soundManager = new SoundManager(this);
 
         // Create player
         this.player = new Player(this, {
             x: DEFAULT_WIDTH / 2,
             y: 450,
-            spriteKey: 'dude',
+            spriteKey: 'hero1', // Use hero1 as the initial sprite key
             stats: {
                 health: 100,
                 maxHealth: 100,
@@ -71,7 +74,8 @@ export class Game extends Scene {
                 maxEnergy: 100,
                 attackPower: 25,
                 defense: 10
-            }
+            },
+            soundManager: this.soundManager
         });
 
         // Setup keyboard input
@@ -146,7 +150,9 @@ export class Game extends Scene {
 
     private setupCollisions(): void {
         // Player collision with platforms
-        this.physics.add.collider(this.player.sprite, this.platforms);
+        if (this.player && this.player.sprite) {
+            this.physics.add.collider(this.player.sprite, this.platforms);
+        }
 
         // Enemy collision with platforms
         this.enemies.forEach(enemy => {
@@ -185,12 +191,16 @@ export class Game extends Scene {
 
         // Setup collisions for new enemy
         this.physics.add.collider(enemy.sprite, this.platforms);
-        this.physics.add.collider(enemy.sprite, this.player.sprite, this.handlePlayerEnemyCollision, undefined, this);
+        if (this.player && this.player.sprite) {
+            this.physics.add.collider(enemy.sprite, this.player.sprite, this.handlePlayerEnemyCollision, undefined, this);
+        }
     }
 
     private playerAttack(): void {
         const damage = this.player.performBasicAttack();
         if (damage) {
+            // Play explosion sound for player attack (as requested)
+            this.soundManager.playExplosion();
             this.checkEnemyHits(damage);
         }
     }
@@ -198,6 +208,8 @@ export class Game extends Scene {
     private playerSpecialAttack(): void {
         const damage = this.player.performSpecialAttack();
         if (damage) {
+            // Play explosion sound for special attack
+            this.soundManager.playExplosion();
             this.checkEnemyHits(damage);
         }
     }
@@ -222,12 +234,19 @@ export class Game extends Scene {
         if (hitCount > 0) {
             const comboData = this.player.getComboData();
             this.scoreManager.addEnemyKill(10, comboData.count);
+            
+            // Play synth sound for high combos (5+ hits)
+            if (comboData.count >= 5) {
+                this.soundManager.playSynth();
+            }
         }
     }
 
     private handlePlayerEnemyCollision(playerSprite: any, enemySprite: any): void {
         const enemy = this.enemies.find(e => e.sprite === enemySprite);
         if (enemy && enemy.isAlive && !this.player.isInvulnerable) {
+            // Play hit/hurt sound when player takes damage
+            this.soundManager.playHitHurt();
             const isAlive = this.player.takeDamage(enemy.getDamage());
             if (!isAlive) {
                 this.endGame();
@@ -246,12 +265,17 @@ export class Game extends Scene {
     }
 
     private handleEnemyRangedAttack(enemy: any, damage: number): void {
+        // Play laser shoot sound for ranged attacks
+        this.soundManager.playLaserShoot();
         // For now, treat ranged attacks the same as melee
         this.handleEnemyAttack(enemy, damage);
     }
 
     private handleEnemyDeath(enemy: EnemyEntity): void {
         this.scoreManager.addEnemyKill(enemy.getPoints(), this.player.getComboData().count);
+        
+        // Play explosion sound when enemy dies
+        this.soundManager.playExplosion();
         
         const index = this.enemies.indexOf(enemy);
         if (index > -1) {
@@ -264,6 +288,9 @@ export class Game extends Scene {
         const finalScore = this.scoreManager.endGame();
         
         console.log('Game Over! Final Score:', finalScore);
+        
+        // Clean up sound manager
+        this.soundManager.destroy();
         
         // Emit game over event
         EventCenter.emit('gameOver', finalScore);

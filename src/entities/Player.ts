@@ -5,6 +5,7 @@ export interface PlayerConfig {
     y: number;
     spriteKey: string;
     stats?: Partial<CombatStats>;
+    soundManager?: any; // SoundManager reference
 }
 
 export class Player {
@@ -19,10 +20,18 @@ export class Player {
     public isShieldActive: boolean = false;
     public shieldDuration: number = 3000; // 3 seconds
     public shieldStartTime: number = 0;
+    
+    // Hero image management
+    private heroImages: string[] = ['hero1', 'hero2', 'hero3', 'hero4', 'hero5'];
+    private currentHeroIndex: number = 0;
+    private lastRotationTime: number = 0;
+    private rotationCooldown: number = 2000; // 2 seconds between rotations
+    private soundManager: any; // SoundManager reference
 
     constructor(scene: Phaser.Scene, config: PlayerConfig) {
         this.sprite = scene.physics.add.sprite(config.x, config.y, config.spriteKey);
         this.combatSystem = new CombatSystem(config.stats);
+        this.soundManager = config.soundManager;
         
         this.setupSprite();
         this.setupAnimations(scene);
@@ -32,6 +41,9 @@ export class Player {
         this.sprite.setCollideWorldBounds(true);
         this.sprite.setBounce(0.2);
         this.sprite.setGravityY(300);
+        
+        // Set initial hero image
+        this.setRandomHeroImage();
     }
 
     private setupAnimations(scene: Phaser.Scene): void {
@@ -68,6 +80,23 @@ export class Player {
         this.sprite.play('player_idle');
     }
 
+    private setRandomHeroImage(): void {
+        const randomIndex = Math.floor(Math.random() * this.heroImages.length);
+        this.currentHeroIndex = randomIndex;
+        this.sprite.setTexture(this.heroImages[randomIndex]);
+        
+        // Set appropriate scale for SVG images (they might be larger than the original sprites)
+        this.sprite.setScale(0.5); // Adjust scale as needed
+    }
+
+    private rotateHeroImage(): void {
+        const currentTime = Date.now();
+        if (currentTime - this.lastRotationTime > this.rotationCooldown) {
+            this.setRandomHeroImage();
+            this.lastRotationTime = currentTime;
+        }
+    }
+
     public update(time: number, delta: number): void {
         this.updateInvulnerability();
         this.updateShield();
@@ -102,11 +131,15 @@ export class Player {
                 this.sprite.setVelocityX(-speed);
                 this.sprite.play('player_walk', true);
                 this.sprite.setFlipX(true);
+                // Rotate hero image after movement
+                this.rotateHeroImage();
                 break;
             case 'right':
                 this.sprite.setVelocityX(speed);
                 this.sprite.play('player_walk', true);
                 this.sprite.setFlipX(false);
+                // Rotate hero image after movement
+                this.rotateHeroImage();
                 break;
             case 'stop':
                 this.sprite.setVelocityX(0);
@@ -118,6 +151,8 @@ export class Player {
     public jump(): void {
         if (this.sprite.body.touching.down) {
             this.sprite.setVelocityY(-400);
+            // Rotate hero image after jump
+            this.rotateHeroImage();
         }
     }
 
@@ -133,6 +168,9 @@ export class Player {
 
         // Play attack animation
         this.sprite.play('player_attack', true);
+        
+        // Rotate hero image after attack
+        this.rotateHeroImage();
 
         // Reset attack state when animation completes
         this.sprite.once('animationcomplete', () => {
@@ -170,6 +208,10 @@ export class Player {
         const isAlive = this.combatSystem.takeDamage(actualDamage);
         
         if (isAlive) {
+            // Play hit/hurt sound when taking damage
+            if (this.soundManager) {
+                this.soundManager.playHitHurt();
+            }
             this.startInvulnerability();
             this.playHurtAnimation();
         }
@@ -198,6 +240,11 @@ export class Player {
         
         // Visual effect for shield
         this.sprite.setTint(0x00ffff);
+        
+        // Play power-up sound when activating shield
+        if (this.soundManager) {
+            this.soundManager.playPowerUp();
+        }
     }
 
     public deactivateShield(): void {
@@ -207,10 +254,18 @@ export class Player {
 
     public heal(amount: number): void {
         this.combatSystem.heal(amount);
+        // Play power-up sound when healing
+        if (this.soundManager) {
+            this.soundManager.playPowerUp();
+        }
     }
 
     public restoreEnergy(amount: number): void {
         this.combatSystem.restoreEnergy(amount);
+        // Play power-up sound when restoring energy
+        if (this.soundManager) {
+            this.soundManager.playPowerUp();
+        }
     }
 
     public getHealth(): number {
