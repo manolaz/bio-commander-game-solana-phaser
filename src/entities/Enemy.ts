@@ -18,15 +18,18 @@ export class EnemyEntity {
     public patrolTimer: number = 0;
     public patrolDuration: number = 2000; // 2 seconds
     public healthBar?: Phaser.GameObjects.Graphics;
+    public damageGlow?: Phaser.GameObjects.Graphics;
+    public scene: Phaser.Scene;
 
     constructor(scene: Phaser.Scene, config: EnemyConfig) {
+        this.scene = scene;
         this.sprite = scene.physics.add.sprite(config.x, config.y, config.type.spriteKey);
         this.type = config.type;
         this.stats = { ...config.type.stats };
         
         this.setupSprite();
         this.setupAnimations(scene);
-        this.createHealthBar(scene);
+        this.createVisualEffects();
     }
 
     private setupSprite(): void {
@@ -89,9 +92,14 @@ export class EnemyEntity {
         this.sprite.play('enemy_idle');
     }
 
-    private createHealthBar(scene: Phaser.Scene): void {
-        this.healthBar = scene.add.graphics();
-        this.updateHealthBar();
+    private createVisualEffects(): void {
+        // Create health bar
+        this.healthBar = this.scene.add.graphics();
+        this.healthBar.setDepth(10);
+        
+        // Create damage glow effect
+        this.damageGlow = this.scene.add.graphics();
+        this.damageGlow.setDepth(1);
     }
 
     private updateHealthBar(): void {
@@ -100,34 +108,65 @@ export class EnemyEntity {
         this.healthBar.clear();
         
         const barWidth = 32;
-        const barHeight = 4;
+        const barHeight = 6;
         const x = this.sprite.x - barWidth / 2;
         const y = this.sprite.y - 20;
 
         // Background
-        this.healthBar.fillStyle(0x000000, 0.8);
-        this.healthBar.fillRect(x, y, barWidth, barHeight);
+        this.healthBar.fillStyle(0x000000, 0.4);
+        this.healthBar.fillRoundedRect(x, y, barWidth, barHeight, 4);
 
         // Health bar
         const healthPercentage = this.getHealthPercentage();
         const healthWidth = (barWidth * healthPercentage) / 100;
         
-        let healthColor = 0x00ff00; // Green
-        if (healthPercentage < 50) healthColor = 0xffff00; // Yellow
-        if (healthPercentage < 25) healthColor = 0xff0000; // Red
+        let healthColor = 0x27ae60; // Green
+        if (healthPercentage < 50) healthColor = 0xf39c12; // Yellow
+        if (healthPercentage < 25) healthColor = 0xe74c3c; // Red
 
         this.healthBar.fillStyle(healthColor, 1);
-        this.healthBar.fillRect(x, y, healthWidth, barHeight);
+        this.healthBar.fillRoundedRect(x, y, healthWidth, barHeight, 4);
 
         // Border
-        this.healthBar.lineStyle(1, 0xffffff, 1);
-        this.healthBar.strokeRect(x, y, barWidth, barHeight);
+        this.healthBar.lineStyle(1, 0xffffff, 0.6);
+        this.healthBar.strokeRoundedRect(x, y, barWidth, barHeight, 4);
+    }
+
+    private updateDamageGlow(): void {
+        if (!this.damageGlow) return;
+
+        this.damageGlow.clear();
+        
+        // Only show damage glow if health is less than max
+        if (this.stats.health < this.stats.maxHealth) {
+            const x = this.sprite.x;
+            const y = this.sprite.y;
+            const size = 24; // ENEMY_SIZE equivalent
+            
+            // Get enemy color based on type
+            let glowColor = 0x00ff00; // Default green
+            switch (this.type.id) {
+                case 'bacteria':
+                    glowColor = 0x00ff00;
+                    break;
+                case 'fungi':
+                    glowColor = 0xff8800;
+                    break;
+                case 'virus':
+                    glowColor = 0xff0000;
+                    break;
+            }
+            
+            this.damageGlow.fillStyle(glowColor, 0.3);
+            this.damageGlow.fillCircle(x, y, size + 4);
+        }
     }
 
     public update(time: number, delta: number): void {
         if (!this.isAlive) return;
 
         this.updateHealthBar();
+        this.updateDamageGlow();
         this.updatePatrolBehavior(delta);
     }
 
@@ -234,6 +273,9 @@ export class EnemyEntity {
     public destroy(): void {
         if (this.healthBar) {
             this.healthBar.destroy();
+        }
+        if (this.damageGlow) {
+            this.damageGlow.destroy();
         }
         this.sprite.destroy();
     }

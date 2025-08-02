@@ -21,6 +21,12 @@ export class Player {
     public shieldDuration: number = 3000; // 3 seconds
     public shieldStartTime: number = 0;
     
+    // Visual effects
+    private shieldEffect?: Phaser.GameObjects.Graphics;
+    private glowEffect?: Phaser.GameObjects.Graphics;
+    private attackEffect?: Phaser.GameObjects.Graphics;
+    private scene: Phaser.Scene;
+    
     // Hero image management
     private heroImages: string[] = ['hero1', 'hero2', 'hero3', 'hero4', 'hero5'];
     private currentHeroIndex: number = 0;
@@ -29,12 +35,14 @@ export class Player {
     private soundManager: any; // SoundManager reference
 
     constructor(scene: Phaser.Scene, config: PlayerConfig) {
+        this.scene = scene;
         this.sprite = scene.physics.add.sprite(config.x, config.y, config.spriteKey);
         this.combatSystem = new CombatSystem(config.stats);
         this.soundManager = config.soundManager;
         
         this.setupSprite();
         this.setupAnimations(scene);
+        this.createVisualEffects();
     }
 
     private setupSprite(): void {
@@ -80,6 +88,53 @@ export class Player {
         this.sprite.play('player_idle');
     }
 
+    private createVisualEffects(): void {
+        // Create shield effect
+        this.shieldEffect = this.scene.add.graphics();
+        this.shieldEffect.setDepth(1);
+        
+        // Create glow effect
+        this.glowEffect = this.scene.add.graphics();
+        this.glowEffect.setDepth(0);
+        
+        // Create attack effect
+        this.attackEffect = this.scene.add.graphics();
+        this.attackEffect.setDepth(2);
+    }
+
+    private updateVisualEffects(): void {
+        if (!this.shieldEffect || !this.glowEffect || !this.attackEffect) return;
+
+        const x = this.sprite.x;
+        const y = this.sprite.y;
+        const size = 32; // T_CELL_SIZE equivalent
+
+        // Clear all effects
+        this.shieldEffect.clear();
+        this.glowEffect.clear();
+        this.attackEffect.clear();
+
+        // Update glow effect (always visible)
+        this.glowEffect.fillStyle(0x3498db, 0.3);
+        this.glowEffect.fillCircle(x, y, size + 8);
+
+        // Update shield effect (only when active)
+        if (this.isShieldActive) {
+            const shieldAlpha = 0.2 + (Math.sin(Date.now() * 0.01) * 0.1);
+            this.shieldEffect.fillStyle(0x27ae60, shieldAlpha);
+            this.shieldEffect.lineStyle(3, 0x27ae60, 0.6);
+            this.shieldEffect.fillCircle(x, y, size + 12);
+            this.shieldEffect.strokeCircle(x, y, size + 12);
+        }
+
+        // Update attack effect (during attack animation)
+        if (this.isAttacking) {
+            const attackAlpha = 0.8 * (1 - Math.abs(Math.sin(Date.now() * 0.02)));
+            this.attackEffect.fillStyle(0x3498db, attackAlpha);
+            this.attackEffect.fillCircle(x, y, size + 16);
+        }
+    }
+
     private setRandomHeroImage(): void {
         const randomIndex = Math.floor(Math.random() * this.heroImages.length);
         this.currentHeroIndex = randomIndex;
@@ -101,6 +156,7 @@ export class Player {
         this.updateInvulnerability();
         this.updateShield();
         this.updateEnergyRegeneration(delta);
+        this.updateVisualEffects();
     }
 
     private updateInvulnerability(): void {
@@ -305,6 +361,9 @@ export class Player {
     }
 
     public destroy(): void {
+        if (this.shieldEffect) this.shieldEffect.destroy();
+        if (this.glowEffect) this.glowEffect.destroy();
+        if (this.attackEffect) this.attackEffect.destroy();
         this.sprite.destroy();
     }
 } 

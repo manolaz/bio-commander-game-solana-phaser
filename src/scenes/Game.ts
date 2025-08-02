@@ -6,6 +6,7 @@ import { EnemyEntity } from '@/entities/Enemy';
 import { EnemyManager } from '@/systems/EnemyManager';
 import { ScoreManager } from '@/systems/ScoreManager';
 import { SoundManager } from '@/systems/SoundManager';
+import { GameHUD } from '@/systems/GameHUD';
 import EventCenter from '@/events/eventCenter';
 
 export class Game extends Scene {
@@ -14,18 +15,14 @@ export class Game extends Scene {
     private enemyManager!: EnemyManager;
     private scoreManager!: ScoreManager;
     private soundManager!: SoundManager;
+    private gameHUD!: GameHUD;
     private enemies: EnemyEntity[] = [];
     private platforms!: Phaser.Physics.Arcade.StaticGroup;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private gameStarted: boolean = false;
     private gameOver: boolean = false;
-
-    // UI Elements
-    private healthText!: Phaser.GameObjects.Text;
-    private energyText!: Phaser.GameObjects.Text;
-    private scoreText!: Phaser.GameObjects.Text;
-    private waveText!: Phaser.GameObjects.Text;
-    private comboText!: Phaser.GameObjects.Text;
+    private currentWave: number = 1;
+    private waveStartTime: number = 0;
 
     constructor() {
         super('Game');
@@ -44,6 +41,7 @@ export class Game extends Scene {
         
         this.gameStarted = true;
         this.scoreManager.startGame();
+        this.waveStartTime = Date.now();
     }
 
     private setupGame(): void {
@@ -83,53 +81,21 @@ export class Game extends Scene {
     }
 
     private setupUI(): void {
-        // Health display
-        this.healthText = this.add.text(16, 16, 'Health: 100/100', {
-            fontSize: '18px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3
+        // Create GameHUD
+        this.gameHUD = new GameHUD({
+            scene: this,
+            x: 20,
+            y: 20,
+            width: 760,
+            height: 120
         });
 
-        // Energy display
-        this.energyText = this.add.text(16, 40, 'Energy: 100/100', {
-            fontSize: '18px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3
-        });
-
-        // Score display
-        this.scoreText = this.add.text(16, 64, 'Score: 0', {
-            fontSize: '18px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3
-        });
-
-        // Wave display
-        this.waveText = this.add.text(16, 88, 'Wave: 1', {
-            fontSize: '18px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3
-        });
-
-        // Combo display
-        this.comboText = this.add.text(16, 112, 'Combo: 0', {
-            fontSize: '18px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3
-        });
-
-        // Instructions
-        this.add.text(DEFAULT_WIDTH / 2, 50, 'Arrow Keys: Move | Space: Attack | S: Special Attack', {
-            fontSize: '14px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 2
-        }).setOrigin(0.5);
+        // Initialize HUD with player stats
+        this.gameHUD.updateHealth(this.player.getHealth(), this.player.getMaxHealth());
+        this.gameHUD.updateEnergy(this.player.getEnergy(), this.player.getMaxEnergy());
+        this.gameHUD.updateScore(0);
+        this.gameHUD.updateDifficultyLevel(this.currentWave);
+        this.gameHUD.updateShieldStatus(this.player.isShieldActive);
     }
 
     private setupInput(): void {
@@ -150,9 +116,7 @@ export class Game extends Scene {
 
     private setupCollisions(): void {
         // Player collision with platforms
-        if (this.player && this.player.sprite) {
-            this.physics.add.collider(this.player.sprite, this.platforms);
-        }
+        this.physics.add.collider(this.player.sprite, this.platforms);
 
         // Enemy collision with platforms
         this.enemies.forEach(enemy => {
@@ -191,9 +155,7 @@ export class Game extends Scene {
 
         // Setup collisions for new enemy
         this.physics.add.collider(enemy.sprite, this.platforms);
-        if (this.player && this.player.sprite) {
-            this.physics.add.collider(enemy.sprite, this.player.sprite, this.handlePlayerEnemyCollision, undefined, this);
-        }
+        this.physics.add.collider(enemy.sprite, this.player.sprite, this.handlePlayerEnemyCollision, undefined, this);
     }
 
     private playerAttack(): void {
@@ -321,6 +283,9 @@ export class Game extends Scene {
         // Update UI
         this.updateUI();
 
+        // Update GameHUD
+        this.gameHUD.update(delta);
+
         // Check for wave completion
         if (this.enemyManager.isWaveComplete()) {
             this.completeWave();
@@ -345,39 +310,42 @@ export class Game extends Scene {
 
     private updateUI(): void {
         // Update health
-        this.healthText.setText(`Health: ${this.player.getHealth()}/${this.player.getMaxHealth()}`);
+        this.gameHUD.updateHealth(this.player.getHealth(), this.player.getMaxHealth());
 
         // Update energy
-        this.energyText.setText(`Energy: ${Math.floor(this.player.getEnergy())}/${this.player.getMaxEnergy()}`);
+        this.gameHUD.updateEnergy(this.player.getEnergy(), this.player.getMaxEnergy());
 
         // Update score
-        this.scoreText.setText(`Score: ${this.scoreManager.formatScore(this.scoreManager.getCurrentScore())}`);
+        this.gameHUD.updateScore(this.scoreManager.getCurrentScore());
 
         // Update wave
-        this.waveText.setText(`Wave: ${this.enemyManager.getWaveNumber()}`);
+        this.gameHUD.updateDifficultyLevel(this.currentWave);
 
         // Update combo
         const comboData = this.player.getComboData();
-        this.comboText.setText(`Combo: ${comboData.count}x`);
+        this.gameHUD.updateCombo(comboData.count);
+
+        // Update shield status
+        this.gameHUD.updateShieldStatus(this.player.isShieldActive);
 
         // Update health bar color based on health percentage
         const healthPercentage = this.player.getHealthPercentage();
         if (healthPercentage < 25) {
-            this.healthText.setColor('#ff0000');
+            this.gameHUD.updateHealthBarColor('#ff0000');
         } else if (healthPercentage < 50) {
-            this.healthText.setColor('#ffff00');
+            this.gameHUD.updateHealthBarColor('#ffff00');
         } else {
-            this.healthText.setColor('#ffffff');
+            this.gameHUD.updateHealthBarColor('#ffffff');
         }
 
         // Update energy bar color based on energy percentage
         const energyPercentage = this.player.getEnergyPercentage();
         if (energyPercentage < 25) {
-            this.energyText.setColor('#ff0000');
+            this.gameHUD.updateEnergyBarColor('#ff0000');
         } else if (energyPercentage < 50) {
-            this.energyText.setColor('#ffff00');
+            this.gameHUD.updateEnergyBarColor('#ffff00');
         } else {
-            this.energyText.setColor('#ffffff');
+            this.gameHUD.updateEnergyBarColor('#ffffff');
         }
     }
 
