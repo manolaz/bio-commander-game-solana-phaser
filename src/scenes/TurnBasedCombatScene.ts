@@ -328,9 +328,11 @@ export class TurnBasedCombatScene extends Scene {
 
     private setupEventListeners(): void {
         // Handle escape key to exit combat
-        this.input.keyboard.on('keydown-ESC', () => {
-            this.exitCombat(false);
-        });
+        if (this.input.keyboard) {
+            this.input.keyboard.on('keydown-ESC', () => {
+                this.exitCombat(false);
+            });
+        }
     }
 
     private startCombat(): void {
