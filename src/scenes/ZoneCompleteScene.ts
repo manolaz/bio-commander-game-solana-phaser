@@ -203,15 +203,16 @@ export class ZoneCompleteScene extends Scene {
     }
 
     private setupInput(): void {
-        // Handle enter key
-        this.input.keyboard.on('keydown-ENTER', () => {
-            this.continueToNextZone();
-        });
+        // Handle enter and space key
+        if (this.input.keyboard) {
+            this.input.keyboard.on('keydown-ENTER', () => {
+                this.continueToNextZone();
+            });
 
-        // Handle space key
-        this.input.keyboard.on('keydown-SPACE', () => {
-            this.continueToNextZone();
-        });
+            this.input.keyboard.on('keydown-SPACE', () => {
+                this.continueToNextZone();
+            });
+        }
     }
 
     private calculateRewards(): void {

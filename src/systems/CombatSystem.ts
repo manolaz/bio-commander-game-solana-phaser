@@ -58,7 +58,7 @@ export class CombatSystem {
     }
 
     // Damage calculation
-    private calculateDamage(baseDamage: number): number {
+    protected calculateDamage(baseDamage: number): number {
         const comboBonus = this.comboData.multiplier;
         const randomVariation = 0.8 + Math.random() * 0.4; // ±20% variation
         return Math.floor(baseDamage * comboBonus * randomVariation);

@@ -23,10 +23,10 @@ export class AdvancedGameplayManager {
     private scene: Scene;
     private player: Player;
     private boss?: Boss;
-    private hazardManager: HazardManager;
-    private achievementSystem: AchievementSystem;
-    private powerUpManager: AdvancedPowerUpManager;
-    private advancedCombatSystem: AdvancedCombatSystem;
+    private hazardManager!: HazardManager;
+    private achievementSystem!: AchievementSystem;
+    private powerUpManager!: AdvancedPowerUpManager;
+    private advancedCombatSystem!: AdvancedCombatSystem;
     
     private gameplayState: GameplayState;
     private bossSpawnWave: number = 5; // Spawn boss every 5 waves
