@@ -333,19 +333,21 @@ export class Game extends Scene {
     }
 
     private setupInput(): void {
-        // Add space key for attack
-        this.input.keyboard.on('keydown-SPACE', () => {
-            if (!this.gameOver) {
-                this.playerAttack();
-            }
-        });
+        if (this.input.keyboard) {
+            // Add space key for attack
+            this.input.keyboard.on('keydown-SPACE', () => {
+                if (!this.gameOver) {
+                    this.playerAttack();
+                }
+            });
 
-        // Add shift key for special attack
-        this.input.keyboard.on('keydown-SHIFT', () => {
-            if (!this.gameOver) {
-                this.playerSpecialAttack();
-            }
-        });
+            // Add shift key for special attack
+            this.input.keyboard.on('keydown-SHIFT', () => {
+                if (!this.gameOver) {
+                    this.playerSpecialAttack();
+                }
+            });
+        }
     }
 
     private setupCollisions(): void {

@@ -124,13 +124,15 @@ export class GameOver extends Scene {
         });
 
         // Keyboard shortcuts
-        this.input.keyboard.on('keydown-R', () => {
-            this.scene.start('Game');
-        });
+        if (this.input.keyboard) {
+            this.input.keyboard.on('keydown-R', () => {
+                this.scene.start('Game');
+            });
 
-        this.input.keyboard.on('keydown-M', () => {
-            this.scene.start('MainMenu');
-        });
+            this.input.keyboard.on('keydown-M', () => {
+                this.scene.start('MainMenu');
+            });
+        }
 
         // Instructions
         this.add.text(400, 520, 'Press R to restart or M for main menu', {
