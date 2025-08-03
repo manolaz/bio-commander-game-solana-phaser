@@ -5,6 +5,7 @@ import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '@/components/Game';
 
 export class WalletConnect extends Scene {
     private umi: Umi | undefined;
+    private timeoutId: Phaser.Time.TimerEvent | undefined;
 
     constructor() {
         super('WalletConnect');
@@ -17,6 +18,12 @@ export class WalletConnect extends Scene {
         // Listen for the "umi" event, which is emitted by the NextJS component when the user connects their wallet.
         EventCenter.on("umi", (umi: Umi) => {
             this.umi = umi;
+        });
+        
+        // Set a timeout to automatically proceed to main menu
+        this.timeoutId = this.time.delayedCall(5000, () => {
+            console.log('Wallet connection timeout, proceeding to main menu');
+            this.scene.start('MainMenu', { umi: this.umi || {} as Umi });
         });
     }
 
@@ -107,7 +114,20 @@ export class WalletConnect extends Scene {
 
     update() {
         if (this.umi) {
+            // Clear the timeout if wallet is connected
+            if (this.timeoutId) {
+                this.timeoutId.remove();
+                this.timeoutId = undefined;
+            }
             this.scene.start('MainMenu', { umi: this.umi });
+        }
+    }
+
+    shutdown() {
+        // Clean up timeout if scene is destroyed
+        if (this.timeoutId) {
+            this.timeoutId.remove();
+            this.timeoutId = undefined;
         }
     }
 }

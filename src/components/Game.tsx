@@ -30,6 +30,7 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
     const [ready, setReady] = useState(false);
     const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [loadingTimeout, setLoadingTimeout] = useState(false);
 
     useEffect(() => {
         const handleReady = () => {
@@ -38,16 +39,24 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
 
         EventCenter.on("ready", handleReady);
         
+        // Add timeout to prevent infinite loading
+        const timeout = setTimeout(() => {
+            console.log('Loading timeout reached, forcing ready state');
+            setLoadingTimeout(true);
+            setReady(true);
+        }, 10000); // 10 second timeout
+        
         return () => {
             EventCenter.off("ready", handleReady);
+            clearTimeout(timeout);
         };
     }, []);
 
     useEffect(() => {
-        if (ready && wallet.connected) {
+        if (ready && (wallet.connected || loadingTimeout)) {
             EventCenter.emit("umi", umi);
         }
-    }, [ready, wallet.connected, umi]);
+    }, [ready, wallet.connected, umi, loadingTimeout]);
 
     useEffect(() => {
         try {
@@ -132,7 +141,15 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
                 <div className="text-center text-white">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <h2 className="text-2xl font-bold mb-2">Initializing Game</h2>
-                    <p className="text-gray-300">Loading Bio Commander...</p>
+                    <p className="text-gray-300 mb-4">Loading Bio Commander...</p>
+                    {loadingTimeout && (
+                        <button 
+                            onClick={() => setReady(true)}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg"
+                        >
+                            Start Game Anyway
+                        </button>
+                    )}
                 </div>
             </div>
         );

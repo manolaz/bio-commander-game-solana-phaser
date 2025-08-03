@@ -227,11 +227,13 @@ export class EnemyManager {
 
         // Start new wave if needed
         if (!this.waveInProgress && this.enemies.length === 0) {
+            console.log('Starting new wave automatically');
             this.startNewWave();
         }
 
         // Spawn enemies
         if (this.spawnTimer >= this.spawnInterval && this.enemies.length < this.maxEnemies && this.waveInProgress) {
+            console.log('Spawning enemy...');
             this.spawnEnemy();
             this.spawnTimer = 0;
         }
@@ -252,17 +254,23 @@ export class EnemyManager {
 
     private spawnEnemy(): void {
         if (this.enemiesSpawnedThisWave >= this.enemiesPerWave) {
+            console.log('Wave complete, stopping spawns');
             this.waveInProgress = false;
             return;
         }
 
         const enemyType = this.selectEnemyType();
-        if (!enemyType) return;
+        if (!enemyType) {
+            console.log('No enemy type selected, skipping spawn');
+            return;
+        }
 
+        console.log('Emitting enemySpawned event for:', enemyType.name);
         // Emit spawn event for the scene to handle
         EventCenter.emit('enemySpawned', { type: enemyType });
         
         this.enemiesSpawnedThisWave++;
+        console.log(`Spawned ${this.enemiesSpawnedThisWave}/${this.enemiesPerWave} enemies this wave`);
     }
 
     private selectEnemyType(): EnemyType | null {
@@ -400,6 +408,7 @@ export class EnemyManager {
     public nextWave(): void {
         this.waveNumber++;
         this.enemiesPerWave = Math.min(20, 5 + this.waveNumber * 2); // Cap at 20 enemies per wave
+        this.startNewWave(); // Actually start the new wave
     }
 
     public getEnemyTypes(): Map<string, EnemyType> {

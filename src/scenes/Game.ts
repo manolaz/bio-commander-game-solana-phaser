@@ -215,33 +215,169 @@ export class Game extends Scene {
     }
 
     create() {
-        this.setupGame();
-        this.setupUI();
+        console.log('Game.create() called');
+        try {
+            console.log('Setting up game...');
+            this.setupGame();
+            console.log('Setting up UI...');
+            this.setupUI();
+            console.log('Setting up input...');
+            this.setupInput();
+            console.log('Setting up collisions...');
+            this.setupCollisions();
+            console.log('Setting up event listeners...');
+            this.setupEventListeners();
+            
+            // Start gameplay music
+            console.log('Starting music...');
+            this.soundManager.playMusic('gameplay');
+            
+            // Play game start sound
+            this.soundManager.playGameStart();
+            this.soundManager.vibrateShort();
+            
+            this.gameStarted = true;
+            this.scoreManager.startGame();
+            this.waveStartTime = Date.now();
+            
+            // Start the first wave immediately
+            console.log('Starting first wave...');
+            this.enemyManager.nextWave();
+            
+            // Add a test enemy after 2 seconds to verify spawning works
+            this.time.delayedCall(2000, () => {
+                console.log('Spawning test enemy...');
+                const testEnemyType = {
+                    id: 'test',
+                    name: 'Test Enemy',
+                    spriteKey: 'virus1',
+                    stats: {
+                        health: 50,
+                        maxHealth: 50,
+                        attackPower: 10,
+                        speed: 100,
+                        damage: 10,
+                        points: 25
+                    },
+                    behavior: 'chase' as const,
+                    spawnRate: 1
+                };
+                this.createEnemy(testEnemyType);
+            });
+            
+            console.log('Game setup complete!');
+        } catch (error) {
+            console.error('Error in Game.create():', error);
+            // Fallback: start game anyway with basic setup
+            console.log('Falling back to basic game setup...');
+            this.setupBasicGame();
+        }
+    }
+
+    private setupBasicGame(): void {
+        // Create a simple background
+        this.add.rectangle(400, 300, 800, 600, 0x1a1a2e);
+
+        // Create basic platforms
+        this.platforms = this.physics.add.staticGroup();
+        this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+        // Initialize basic systems
+        this.enemyManager = new EnemyManager();
+        this.enemyManager.setZoneConfig(this.zoneConfig);
+        this.scoreManager = new ScoreManager();
+        this.soundManager = new SoundManager(this);
+        this.soundManager.initialize();
+
+        // Create basic player (fallback to dude sprite if hero sprites fail)
+        try {
+            this.player = new Player(this, {
+                x: DEFAULT_WIDTH / 2,
+                y: 450,
+                spriteKey: 'hero1',
+                stats: {
+                    health: 100,
+                    maxHealth: 100,
+                    energy: 100,
+                    maxEnergy: 100,
+                    attackPower: 25,
+                    defense: 10
+                },
+                soundManager: this.soundManager
+            });
+        } catch (error) {
+            console.error('Failed to create player with hero sprite, using dude:', error);
+            // Create player with dude sprite as fallback
+            this.player = new Player(this, {
+                x: DEFAULT_WIDTH / 2,
+                y: 450,
+                spriteKey: 'dude',
+                stats: {
+                    health: 100,
+                    maxHealth: 100,
+                    energy: 100,
+                    maxEnergy: 100,
+                    attackPower: 25,
+                    defense: 10
+                },
+                soundManager: this.soundManager
+            });
+        }
+
+        // Setup keyboard input
+        if (this.input.keyboard) {
+            this.cursors = this.input.keyboard.createCursorKeys();
+        }
+
+        // Setup basic UI
+        this.setupBasicUI();
         this.setupInput();
         this.setupCollisions();
         this.setupEventListeners();
-        
-        // Start gameplay music
-        this.soundManager.playMusic('gameplay');
-        
-        // Play game start sound
-        this.soundManager.playGameStart();
-        this.soundManager.vibrateShort();
         
         this.gameStarted = true;
         this.scoreManager.startGame();
         this.waveStartTime = Date.now();
         
-        // Start the first wave immediately
+        // Start the first wave
         this.enemyManager.nextWave();
     }
 
+    private setupBasicUI(): void {
+        // Create basic HUD
+        this.gameHUD = new GameHUD({
+            scene: this,
+            x: 20,
+            y: 20,
+            width: 760,
+            height: 120
+        });
+
+        // Initialize HUD with player stats and zone info
+        this.gameHUD.updateHealth(this.player.getHealth(), this.player.getMaxHealth());
+        this.gameHUD.updateEnergy(this.player.getEnergy(), this.player.getMaxEnergy());
+        this.gameHUD.updateScore(0);
+        this.gameHUD.updateDifficultyLevel(this.currentWave);
+        this.gameHUD.updateShieldStatus(this.player.isShieldActive);
+        this.gameHUD.updateZoneInfo(this.zoneConfig.name, this.zoneConfig.emoji);
+
+        // Add back to menu button
+        this.createBackToMenuButton();
+        
+        // Add instruction overlay
+        this.createInstructionOverlay();
+    }
+
     private setupGame(): void {
+        console.log('setupGame() called');
+        
         // Create background based on zone
+        console.log('Creating background for zone:', this.zoneConfig.background);
         const backgroundKey = this.zoneConfig.background || 'sky';
         this.add.image(400, 300, backgroundKey);
 
         // Create platforms
+        console.log('Creating platforms...');
         this.platforms = this.physics.add.staticGroup();
         this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this.platforms.create(400, 400, 'ground').setScale(0.5, 1).refreshBody();
@@ -249,6 +385,7 @@ export class Game extends Scene {
         this.platforms.create(700, 300, 'ground').setScale(0.5, 1).refreshBody();
 
         // Initialize game systems with zone configuration
+        console.log('Initializing game systems...');
         this.enemyManager = new EnemyManager();
         this.enemyManager.setZoneConfig(this.zoneConfig);
         this.scoreManager = new ScoreManager();
@@ -256,6 +393,7 @@ export class Game extends Scene {
         this.soundManager.initialize();
 
         // Create player
+        console.log('Creating player...');
         this.player = new Player(this, {
             x: DEFAULT_WIDTH / 2,
             y: 450,
@@ -272,9 +410,12 @@ export class Game extends Scene {
         });
 
         // Setup keyboard input
+        console.log('Setting up keyboard input...');
         if (this.input.keyboard) {
             this.cursors = this.input.keyboard.createCursorKeys();
         }
+        
+        console.log('setupGame() completed successfully');
     }
 
     private setupUI(): void {
@@ -299,6 +440,63 @@ export class Game extends Scene {
 
         // Add back to menu button
         this.createBackToMenuButton();
+        
+        // Add instruction overlay
+        this.createInstructionOverlay();
+    }
+
+    private createInstructionOverlay(): void {
+        const instructions = this.add.container(400, 300);
+        instructions.setDepth(1002);
+
+        // Background
+        const bg = this.add.graphics();
+        bg.fillStyle(0x000000, 0.8);
+        bg.fillRoundedRect(-200, -150, 400, 300, 20);
+        bg.lineStyle(2, 0x667eea, 1);
+        bg.strokeRoundedRect(-200, -150, 400, 300, 20);
+        instructions.add(bg);
+
+        // Title
+        const title = this.add.text(0, -120, '🎮 CONTROLS', {
+            fontSize: '20px',
+            fontFamily: 'Arial Black',
+            color: '#ffffff',
+            stroke: '#667eea',
+            strokeThickness: 2
+        }).setOrigin(0.5);
+        instructions.add(title);
+
+        // Instructions
+        const controls = [
+            '⬅️ ➡️ Move Left/Right',
+            '⬆️ Jump',
+            'SPACE Basic Attack',
+            'SHIFT Special Attack',
+            '🎯 Defeat enemies to survive!'
+        ];
+
+        controls.forEach((control, index) => {
+            const text = this.add.text(0, -80 + (index * 25), control, {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+                color: '#ffffff',
+                align: 'center'
+            }).setOrigin(0.5);
+            instructions.add(text);
+        });
+
+        // Auto-hide after 5 seconds
+        this.time.delayedCall(5000, () => {
+            this.tweens.add({
+                targets: instructions,
+                alpha: 0,
+                duration: 1000,
+                onComplete: () => {
+                    instructions.destroy();
+                }
+            });
+        });
     }
 
     private createBackToMenuButton(): void {
@@ -391,10 +589,13 @@ export class Game extends Scene {
     }
 
     private createEnemy(enemyType: any): void {
+        console.log('createEnemy called with:', enemyType);
+        
         // Create enemy sprite
         const spawnX = Math.random() * 800;
         const spawnY = 0;
         
+        console.log('Creating enemy sprite at:', spawnX, spawnY, 'with key:', enemyType.spriteKey);
         const enemySprite = this.physics.add.sprite(spawnX, spawnY, enemyType.spriteKey);
         
         // Create enemy instance
@@ -416,6 +617,8 @@ export class Game extends Scene {
         
         // Play roar sound when enemy spawns
         this.soundManager.playRoar();
+        
+        console.log('Enemy created successfully, total enemies:', this.enemies.length);
     }
 
     private playerAttack(): void {
