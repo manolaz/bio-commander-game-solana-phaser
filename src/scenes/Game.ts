@@ -272,7 +272,9 @@ export class Game extends Scene {
         });
 
         // Setup keyboard input
-        this.cursors = this.input.keyboard.createCursorKeys();
+        if (this.input.keyboard) {
+            this.cursors = this.input.keyboard.createCursorKeys();
+        }
     }
 
     private setupUI(): void {
