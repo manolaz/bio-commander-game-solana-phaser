@@ -33,8 +33,7 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
     private collected: boolean = false;
     private pulseTween?: Phaser.Tweens.Tween;
     private rotationTween?: Phaser.Tweens.Tween;
-    private rarityParticles?: Phaser.GameObjects.Particles.ParticleEmitterManager;
-    private rarityEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
+    private rarityParticles?: Phaser.GameObjects.Particles.ParticleEmitter;
 
     constructor(scene: Scene, x: number, y: number, type: AdvancedPowerUpType) {
         super(scene, x, y, 'advanced_powerup');
@@ -46,7 +45,7 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
         this.createRarityEffects();
     }
 
-    private static getConfig(type: AdvancedPowerUpType): AdvancedPowerUpConfig {
+    public static getConfig(type: AdvancedPowerUpType): AdvancedPowerUpConfig {
         const configs: Record<AdvancedPowerUpType, AdvancedPowerUpConfig> = {
             // Basic power-ups
             health: {
@@ -283,8 +282,10 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
         
         // Set body size based on rarity
         const size = this.getRaritySize();
-        this.body.setSize(size * 1.5, size * 1.5);
-        this.body.setOffset(-size * 0.75, -size * 0.75);
+        if (this.body) {
+            this.body.setSize(size * 1.5, size * 1.5);
+            this.body.setOffset(-size * 0.75, -size * 0.75);
+        }
     }
 
     private startAnimations() {
@@ -398,13 +399,9 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
 
     private createRarityEffects(): void {
         if (this.config.rarity === 'epic' || this.config.rarity === 'legendary') {
-            this.rarityParticles = this.scene.add.particles('particle');
-            
             const particleColor = this.config.rarity === 'legendary' ? 0xffff00 : 0xff00ff;
             
-            this.rarityEmitter = this.rarityParticles.createEmitter({
-                x: this.x,
-                y: this.y,
+            this.rarityParticles = this.scene.add.particles(this.x, this.y, 'particle', {
                 speed: { min: 20, max: 40 },
                 scale: { start: 0.3, end: 0 },
                 alpha: { start: 0.8, end: 0 },
@@ -483,11 +480,7 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
     }
 
     private createCollectionParticles() {
-        const particles = this.scene.add.particles('particle');
-        
-        const emitter = particles.createEmitter({
-            x: this.x,
-            y: this.y,
+        const particles = this.scene.add.particles(this.x, this.y, 'particle', {
             speed: { min: 80, max: 150 },
             scale: { start: 0.8, end: 0 },
             alpha: { start: 1, end: 0 },
@@ -498,7 +491,7 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
 
         // Stop emitting after a short time
         this.scene.time.delayedCall(100, () => {
-            emitter.stop();
+            particles.stop();
             this.scene.time.delayedCall(800, () => {
                 particles.destroy();
             });
@@ -544,8 +537,8 @@ export class AdvancedPowerUp extends Physics.Arcade.Sprite {
         }
 
         // Update particle emitter position
-        if (this.rarityEmitter && this.active) {
-            this.rarityEmitter.setPosition(this.x, this.y);
+        if (this.rarityParticles && this.active) {
+            this.rarityParticles.setPosition(this.x, this.y);
         }
     }
 }

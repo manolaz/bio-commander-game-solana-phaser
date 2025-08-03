@@ -60,6 +60,8 @@ export interface Particle {
 export interface GameSettings {
   musicEnabled: boolean;
   soundEnabled: boolean;
+  vibrationEnabled: boolean;
+  particleEffects: boolean;
   musicVolume: number;
   soundVolume: number;
   difficulty: 'easy' | 'medium' | 'hard';

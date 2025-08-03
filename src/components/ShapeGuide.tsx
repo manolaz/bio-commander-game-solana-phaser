@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
     overflow: 'hidden',
-    backdropFilter: 'blur(10px)',
   },
   header: {
     flexDirection: 'row',

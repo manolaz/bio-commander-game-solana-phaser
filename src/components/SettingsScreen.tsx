@@ -8,7 +8,7 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { GameSettings } from '../utils/types';
 
 interface SettingsScreenProps {
@@ -27,7 +27,7 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
 
   const difficultyOptions = [
     { label: 'Easy', value: 'easy' as const },
-    { label: 'Normal', value: 'normal' as const },
+    { label: 'Medium', value: 'medium' as const },
     { label: 'Hard', value: 'hard' as const },
   ];
 
@@ -39,10 +39,7 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
   ];
 
   return (
-    <LinearGradient
-      colors={['#0a0a0a', '#1a1a2e', '#16213e']}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
@@ -169,13 +166,14 @@ export function SettingsScreen({ settings, onSettingsChange, onBack }: SettingsS
           </View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0a0a0a',
   },
   safeArea: {
     flex: 1,

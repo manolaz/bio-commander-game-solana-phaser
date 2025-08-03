@@ -166,16 +166,7 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
     };
   }, []);
 
-  // Expose methods for external control
-  React.useImperativeHandle(React.useRef(), () => ({
-    startMusic,
-    stopMusic,
-    pauseMusic,
-    resumeMusic,
-    updateVolume,
-    isPlaying: () => isPlaying,
-    isLoading: () => isLoading,
-  }));
+  // Note: Methods are available through props and internal state management
 
   // This component doesn't render anything visible
   return null;

@@ -120,7 +120,10 @@ export class Boss extends EnemyEntity {
                 break;
             case 'chase':
                 if (distance > 100) {
-                    this.moveTowards(player.x, player.y, this.getCurrentPhase().speed);
+                    const currentPhase = this.getCurrentPhase();
+                    if (currentPhase) {
+                        this.moveTowards(player.x, player.y, currentPhase.speed);
+                    }
                 } else {
                     this.stopMoving();
                 }
@@ -156,7 +159,8 @@ export class Boss extends EnemyEntity {
         const player = this.scene.children.getByName('player') as Phaser.Physics.Arcade.Sprite;
         if (!player) return;
 
-        const damage = pattern.damage * (this.isEnraged ? 1.5 : 1) * this.getCurrentPhase().damageMultiplier;
+        const currentPhase = this.getCurrentPhase();
+        const damage = pattern.damage * (this.isEnraged ? 1.5 : 1) * (currentPhase?.damageMultiplier || 1);
 
         switch (pattern.effect) {
             case 'single':

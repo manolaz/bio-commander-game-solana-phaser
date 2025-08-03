@@ -170,7 +170,7 @@ export class EnemyEntity {
         this.updatePatrolBehavior(delta);
     }
 
-    private updatePatrolBehavior(delta: number): void {
+    protected updatePatrolBehavior(delta: number): void {
         if (this.type.behavior !== 'patrol') return;
 
         this.patrolTimer += delta;

@@ -44,7 +44,7 @@ export const TCell: React.FC<TCellProps> = ({
       accessibilityRole="button"
       accessibilityHint="Drag this cell around the screen to avoid enemies"
     >
-      <Text style={styles.cellEmoji} accessibilityHidden>🔵</Text>
+      <Text style={styles.cellEmoji} importantForAccessibility="no">🔵</Text>
       
       {/* Shield Effect */}
       {isShielded && (
@@ -62,7 +62,7 @@ export const TCell: React.FC<TCellProps> = ({
             }
           ]}
         >
-          <Text style={styles.shieldEmoji} accessibilityHidden>🛡️</Text>
+          <Text style={styles.shieldEmoji} importantForAccessibility="no">🛡️</Text>
         </Animated.View>
       )}
       

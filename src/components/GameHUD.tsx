@@ -46,7 +46,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
   );
 
   return (
-    <View style={styles.container} accessibilityRole="banner">
+    <View style={styles.container} accessibilityRole="header">
       {renderProgressBar(health, GAME_CONSTANTS.MAX_HEALTH, '#e74c3c', 'Health')}
       {renderProgressBar(energy, GAME_CONSTANTS.MAX_ENERGY, '#3498db', 'Energy')}
       
@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
     elevation: 15,
     borderWidth: 1,
     borderColor: 'rgba(102, 126, 234, 0.2)',
-    backdropFilter: 'blur(20px)',
   },
   barContainer: {
     marginBottom: 14,

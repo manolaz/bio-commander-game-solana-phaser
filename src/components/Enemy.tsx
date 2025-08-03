@@ -42,7 +42,7 @@ const EnemyComponent: React.FC<EnemyProps> = ({ enemy }) => {
       accessibilityRole="image"
     >
       {/* Enemy Character */}
-      <Text style={styles.enemyEmoji} accessibilityHidden>
+      <Text style={styles.enemyEmoji} importantForAccessibility="no">
         {enemyConfig.emoji}
       </Text>
       

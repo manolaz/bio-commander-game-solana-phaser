@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 2,
     borderColor: 'rgba(102, 126, 234, 0.3)',
-    backdropFilter: 'blur(20px)',
   },
   header: {
     alignItems: 'center',
