@@ -9,6 +9,8 @@ export interface GameSettings {
     autoSave: boolean;
 }
 
+type BooleanKeys<T> = { [K in keyof T]: T[K] extends boolean ? K : never }[keyof T];
+
 export class SettingsScreen extends Scene {
     private background!: GameObjects.Graphics;
     private title!: GameObjects.Text;
@@ -136,7 +138,7 @@ export class SettingsScreen extends Scene {
         }).setOrigin(0.5);
     }
 
-    private createToggleSetting(label: string, y: number, settingKey: keyof GameSettings) {
+    private createToggleSetting(label: string, y: number, settingKey: BooleanKeys<GameSettings>) {
         // Label
         this.add.text(100, y, label, {
             fontSize: '16px',
@@ -150,7 +152,7 @@ export class SettingsScreen extends Scene {
 
         toggleButton.setInteractive(new Phaser.Geom.Rectangle(-25, -15, 50, 30), Phaser.Geom.Rectangle.Contains);
         toggleButton.on('pointerdown', () => {
-            this.settings[settingKey] = !this.settings[settingKey] as any;
+            this.settings[settingKey] = !this.settings[settingKey];
             this.updateToggleButton(toggleButton, this.settings[settingKey] as boolean);
         });
 
