@@ -268,15 +268,16 @@ export class TutorialScreen extends Scene {
     private updateNavigation() {
         // Update step indicators
         const stepIndicators = this.navigation.getByName('stepIndicators') || this.navigation.list[2];
-        if (stepIndicators && stepIndicators.list) {
-            stepIndicators.list.forEach((indicator: GameObjects.Graphics, index: number) => {
-                indicator.clear();
+        if (stepIndicators && (stepIndicators as Phaser.GameObjects.Container).list) {
+            (stepIndicators as Phaser.GameObjects.Container).list.forEach((indicator, index) => {
+                const graphics = indicator as Phaser.GameObjects.Graphics;
+                graphics.clear();
                 if (index === this.currentStep) {
-                    indicator.fillStyle(0x667eea);
+                    graphics.fillStyle(0x667eea);
                 } else {
-                    indicator.fillStyle(0xffffff, 0.2);
+                    graphics.fillStyle(0xffffff, 0.2);
                 }
-                indicator.fillCircle(index * 15, 0, 4);
+                graphics.fillCircle(index * 15, 0, 4);
             });
         }
 

@@ -45,20 +45,13 @@ export class ZoneCompleteScene extends Scene {
     }
 
     private createParticleEffects(): void {
-        const particles = this.add.particles('particle');
-        
-        // Create celebration particles
-        const emitter = particles.createEmitter({
-            x: { min: 0, max: this.cameras.main.width },
-            y: -10,
-            speedY: { min: 50, max: 100 },
-            speedX: { min: -20, max: 20 },
-            scale: { start: 0.5, end: 0 },
+        const particles = this.add.particles(this.cameras.main.centerX, this.cameras.main.centerY, 'particle', {
+            speed: { min: 100, max: 200 },
+            scale: { start: 0.7, end: 0 },
             alpha: { start: 1, end: 0 },
-            tint: [0xffff00, 0x00ff00, 0x0000ff, 0xff00ff],
-            lifespan: 3000,
-            quantity: 2,
-            frequency: 200
+            tint: 0x667eea,
+            lifespan: 1200,
+            quantity: 20
         });
     }
 
