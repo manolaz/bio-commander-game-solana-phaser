@@ -57,7 +57,7 @@ const PowerUpComponent: React.FC<PowerUpProps> = ({ powerUp }) => {
       />
     </Animated.View>
   );
-});
+};
 
 const styles = StyleSheet.create({
   container: {

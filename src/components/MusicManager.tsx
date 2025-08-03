@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface MusicManagerProps {
   isEnabled: boolean;
@@ -83,15 +83,15 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
   };
 
   // Start playing random music
-  const startMusic = async () => {
+  const startMusic = useCallback(async () => {
     if (!isEnabled || !isClient) return;
     
     const randomTrackIndex = getRandomTrack();
     await playTrack(randomTrackIndex);
-  };
+  }, [isEnabled, isClient]);
 
   // Stop music
-  const stopMusic = async () => {
+  const stopMusic = useCallback(async () => {
     if (!isClient || !audioRef.current) return;
     
     try {
@@ -101,7 +101,7 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
     } catch (error) {
       console.error('Error stopping music:', error);
     }
-  };
+  }, [isClient]);
 
   // Pause music
   const pauseMusic = async () => {
@@ -128,7 +128,7 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
   };
 
   // Update volume
-  const updateVolume = async (newVolume: number) => {
+  const updateVolume = useCallback(async (newVolume: number) => {
     if (!isClient || !audioRef.current) return;
     
     try {
@@ -136,7 +136,7 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
     } catch (error) {
       console.error('Error updating volume:', error);
     }
-  };
+  }, [isClient]);
 
   // Handle music enable/disable
   useEffect(() => {
@@ -147,14 +147,14 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
         stopMusic();
       }
     }
-  }, [isEnabled, isClient]);
+  }, [isEnabled, isClient, startMusic, stopMusic]);
 
   // Handle volume changes
   useEffect(() => {
     if (isClient) {
       updateVolume(volume);
     }
-  }, [volume, isClient]);
+  }, [volume, isClient, updateVolume]);
 
   // Cleanup on unmount
   useEffect(() => {

@@ -68,7 +68,7 @@ const EnemyComponent: React.FC<EnemyProps> = ({ enemy }) => {
       )}
     </Animated.View>
   );
-});
+};
 
 const styles = StyleSheet.create({
   container: {
