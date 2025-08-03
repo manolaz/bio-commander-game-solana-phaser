@@ -102,7 +102,7 @@ export class EnemyEntity {
         this.damageGlow.setDepth(1);
     }
 
-    private updateHealthBar(): void {
+    protected updateHealthBar(): void {
         if (!this.healthBar) return;
 
         this.healthBar.clear();
@@ -183,7 +183,7 @@ export class EnemyEntity {
         const speed = this.stats.speed * 0.5;
         this.sprite.setVelocityX(speed * this.direction);
         
-        if (this.sprite.body.velocity.x !== 0) {
+        if (this.sprite.body && this.sprite.body.velocity.x !== 0) {
             this.sprite.play('enemy_walk', true);
             this.sprite.setFlipX(this.direction < 0);
         } else {
@@ -244,7 +244,10 @@ export class EnemyEntity {
             Math.sin(angle) * speed
         );
 
-        if (this.sprite.body.velocity.x !== 0 || this.sprite.body.velocity.y !== 0) {
+        if (
+            this.sprite.body &&
+            (this.sprite.body.velocity.x !== 0 || this.sprite.body.velocity.y !== 0)
+        ) {
             this.sprite.play('enemy_walk', true);
             this.sprite.setFlipX(this.sprite.body.velocity.x < 0);
         }

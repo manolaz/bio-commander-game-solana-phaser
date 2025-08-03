@@ -90,8 +90,10 @@ export class PowerUp extends Physics.Arcade.Sprite {
         this.scene.physics.add.existing(this);
         
         // Set body size
-        this.body.setSize(24, 24);
-        this.body.setOffset(4, 4);
+        if (this.body) {
+            this.body.setSize(24, 24);
+            this.body.setOffset(4, 4);
+        }
     }
 
     private startAnimations() {
@@ -161,11 +163,7 @@ export class PowerUp extends Physics.Arcade.Sprite {
     }
 
     private createCollectionParticles() {
-        const particles = this.scene.add.particles('particle');
-        
-        const emitter = particles.createEmitter({
-            x: this.x,
-            y: this.y,
+        const particles = this.scene.add.particles(this.x, this.y, 'particle', {
             speed: { min: 50, max: 100 },
             scale: { start: 0.5, end: 0 },
             alpha: { start: 1, end: 0 },
@@ -176,8 +174,8 @@ export class PowerUp extends Physics.Arcade.Sprite {
 
         // Stop emitting after a short time
         this.scene.time.delayedCall(100, () => {
-            emitter.stop();
-            this.scene.time.delayedCall(500, () => {
+            particles.stop();
+            this.scene.time.delayedCall(800, () => {
                 particles.destroy();
             });
         });

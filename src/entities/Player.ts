@@ -205,7 +205,7 @@ export class Player {
     }
 
     public jump(): void {
-        if (this.sprite.body.touching.down) {
+        if (this.sprite.body && this.sprite.body.touching.down) {
             this.sprite.setVelocityY(-400);
             // Rotate hero image after jump
             this.rotateHeroImage();

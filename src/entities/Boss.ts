@@ -41,6 +41,7 @@ export class Boss extends EnemyEntity {
     private specialEffects: Map<string, any> = new Map();
     private summonedMinions: any[] = [];
     private lastPhaseChange: number = 0;
+    private isInvulnerable: boolean = false;
 
     constructor(scene: Phaser.Scene, config: BossConfig) {
         super(scene, config);
@@ -179,9 +180,6 @@ export class Boss extends EnemyEntity {
                 this.performBuffAttack();
                 break;
         }
-
-        // Play attack animation
-        this.playAttackAnimation();
     }
 
     private performSingleAttack(target: Phaser.Physics.Arcade.Sprite, damage: number): void {
@@ -508,6 +506,14 @@ export class Boss extends EnemyEntity {
         }
         
         return super.takeDamage(damage);
+    }
+
+    public heal(amount: number): void {
+        if (!this.isAlive) return;
+        this.stats.health = Math.min(this.stats.maxHealth, this.stats.health + amount);
+        if (this.healthBar) {
+            this.updateHealthBar();
+        }
     }
 
     public destroy(): void {
