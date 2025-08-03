@@ -94,7 +94,11 @@ export default function Home() {
               Back to World Map
             </button>
             <button 
-              onClick={() => window.location.reload()} 
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.location.reload();
+                }
+              }} 
               className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
             >
               Reload Page

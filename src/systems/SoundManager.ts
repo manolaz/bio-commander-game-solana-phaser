@@ -147,19 +147,8 @@ export class SoundManager {
     }
 
     private updateVolumes(): void {
-        // Update SFX volumes
-        this.sounds.forEach((soundArray) => {
-            soundArray.forEach((sound) => {
-                const volume = this.settings.soundEnabled ? this.settings.sfxVolume : 0;
-                sound.setVolume(volume);
-            });
-        });
-
-        // Update music volume
-        if (this.currentMusic) {
-            const volume = this.settings.musicEnabled ? this.settings.musicVolume : 0;
-            this.currentMusic.setVolume(volume);
-        }
+        // Note: Volume is set when playing sounds, not on the sound objects themselves
+        // This method is kept for potential future use with volume controls
     }
 
     private getRandomSound(soundType: string): Phaser.Sound.BaseSound | null {
@@ -178,7 +167,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('explosion');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -186,7 +175,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('laserShoot');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -194,7 +183,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('hitHurt');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -202,7 +191,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('pickupCoin');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -210,7 +199,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('powerUp');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -218,7 +207,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('synth');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -226,7 +215,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('uiClick');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -234,7 +223,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('uiHover');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -242,7 +231,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('gameStart');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -250,7 +239,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('gameOver');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -258,7 +247,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('levelUp');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -267,7 +256,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('adventure');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -275,7 +264,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('drinking');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -283,7 +272,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('roar');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.sfxVolume });
         }
     }
 
@@ -291,7 +280,7 @@ export class SoundManager {
         if (!this.settings.soundEnabled) return;
         const sound = this.getRandomSound('sword');
         if (sound) {
-            sound.play();
+            sound.play('', { volume: this.settings.soundEnabled ? this.settings.sfxVolume : 0 });
         }
     }
 
@@ -304,9 +293,10 @@ export class SoundManager {
 
         const music = this.musicTracks.get(trackName);
         if (music) {
-            music.setLoop(loop);
-            music.setVolume(this.settings.musicVolume);
-            music.play();
+            music.play('', { 
+                loop: loop,
+                volume: this.settings.musicVolume 
+            });
             this.currentMusic = music;
         }
     }

@@ -241,7 +241,7 @@ export class ShapeRecognition {
         return corners;
     }
 
-    isDrawing(): boolean {
+    getIsDrawing(): boolean {
         return this.isDrawing;
     }
 

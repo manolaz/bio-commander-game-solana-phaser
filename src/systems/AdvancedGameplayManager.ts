@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { Boss, BossConfig } from '@/entities/Boss';
+import { Boss, BossConfig, BossPhase } from '@/entities/Boss';
 import { HazardManager } from '@/systems/EnvironmentalHazards';
 import { AchievementSystem } from '@/systems/AchievementSystem';
 import { AdvancedPowerUpManager } from '@/entities/AdvancedPowerUp';
@@ -172,10 +172,10 @@ export class AdvancedGameplayManager {
         return bossTypes[index];
     }
 
-    private getBossPhasesForWave(): any[] {
+    private getBossPhasesForWave(): BossPhase[] {
         const waveDifficulty = Math.floor(this.gameplayState.currentWave / this.bossSpawnWave);
         
-        const basePhases = [
+        const basePhases: BossPhase[] = [
             {
                 id: 'phase1',
                 name: 'Aggressive',

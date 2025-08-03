@@ -64,7 +64,7 @@ export class TouchControls {
                 touch.y = pointer.y;
 
                 // Continue shape drawing
-                if (this.shapeRecognition.isDrawing()) {
+                if (this.shapeRecognition.getIsDrawing()) {
                     this.shapeRecognition.continueDrawing(pointer.x, pointer.y);
                 }
             }
@@ -83,7 +83,7 @@ export class TouchControls {
                 );
 
                 // Handle different gesture types
-                if (this.shapeRecognition.isDrawing()) {
+                if (this.shapeRecognition.getIsDrawing()) {
                     const shape = this.shapeRecognition.endDrawing();
                     if (shape) {
                         this.handleShapeGesture(shape);
@@ -109,7 +109,7 @@ export class TouchControls {
             if (!this.isEnabled) return;
             
             this.activeTouches.delete(pointer.id);
-            if (this.shapeRecognition.isDrawing()) {
+            if (this.shapeRecognition.getIsDrawing()) {
                 this.shapeRecognition.cancelDrawing();
             }
         });

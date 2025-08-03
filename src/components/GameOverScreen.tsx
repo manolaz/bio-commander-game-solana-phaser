@@ -1,8 +1,4 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface GameOverScreenProps {
   score: number;
@@ -27,211 +23,67 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({
   };
 
   const getEncouragementMessage = (score: number): string => {
-    if (score >= 500) return "You&apos;ve mastered the microscopic battlefield!";
+    if (score >= 500) return "You've mastered the microscopic battlefield!";
     if (score >= 300) return "Exceptional defense against the invasion!";
     if (score >= 150) return "Your T-cell fought valiantly!";
-    if (score >= 50) return "You&apos;re getting the hang of bio-combat!";
+    if (score >= 50) return "You're getting the hang of bio-combat!";
     return "Every commander starts somewhere. Try again!";
   };
 
   return (
-    <View style={styles.overlay}>
-      <View style={styles.container}>
+    <div className="fixed inset-0 bg-black bg-opacity-95 flex justify-center items-center z-50">
+      <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 text-center">
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Mission Complete</Text>
-          <Text style={styles.subtitle}>The microscopic battle has ended</Text>
-        </View>
+        <div className="mb-6">
+          <h1 className="text-3xl font-extrabold text-gray-800 mb-2">
+            Mission Complete
+          </h1>
+          <p className="text-gray-600">
+            The microscopic battle has ended
+          </p>
+        </div>
 
         {/* Score Section */}
-        <View style={styles.scoreSection}>
-          <View style={styles.scoreIconContainer}>
-            <Text style={styles.trophyIcon}>🏆</Text>
-          </View>
-          <Text style={styles.scoreLabel}>Final Score</Text>
-          <Text style={styles.scoreValue}>{score.toLocaleString()}</Text>
-          <Text style={styles.scoreMessage}>{getScoreMessage(score)}</Text>
-        </View>
+        <div className="mb-6">
+          <div className="w-24 h-24 rounded-full bg-yellow-100 flex justify-center items-center mb-4 mx-auto">
+            <span className="text-4xl">🏆</span>
+          </div>
+          <p className="text-gray-600 text-sm mb-1">Final Score</p>
+          <p className="text-4xl font-bold text-gray-800 mb-2">
+            {score.toLocaleString()}
+          </p>
+          <p className="text-lg font-semibold text-blue-600">
+            {getScoreMessage(score)}
+          </p>
+        </div>
 
         {/* Encouragement */}
-        <View style={styles.messageSection}>
-          <Text style={styles.encouragementText}>
+        <div className="mb-6">
+          <p className="text-gray-700 leading-relaxed">
             {getEncouragementMessage(score)}
-          </Text>
-        </View>
+          </p>
+        </div>
 
         {/* Action Buttons */}
-        <View style={styles.buttonSection}>
-          <TouchableOpacity
-            style={styles.restartButton}
-            onPress={onRestart}
-            accessibilityLabel="Restart game"
-            accessibilityRole="button"
-            accessibilityHint="Start a new game session"
+        <div className="mb-6">
+          <button
+            onClick={onRestart}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-colors duration-200"
           >
-            <Text style={styles.restartButtonText}>🔄 New Mission</Text>
-          </TouchableOpacity>
-        </View>
+            🔄 New Mission
+          </button>
+        </div>
 
         {/* Stats Preview */}
-        <View style={styles.statsPreview}>
-          <View style={styles.statItem}>
-            <Text style={styles.targetIcon}>🎯</Text>
-            <Text style={styles.statText}>Enemies Defeated: {Math.floor(score / 15)}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
+        <div className="border-t border-gray-200 pt-4">
+          <div className="flex items-center justify-center space-x-2">
+            <span className="text-2xl">🎯</span>
+            <span className="text-gray-600">
+              Enemies Defeated: {Math.floor(score / 15)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(10, 10, 26, 0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 3000,
-  },
-  container: {
-    backgroundColor: 'rgba(26, 26, 58, 0.95)',
-    padding: 32,
-    borderRadius: 28,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.6,
-    shadowRadius: 40,
-    elevation: 25,
-    maxWidth: SCREEN_WIDTH - 40,
-    width: '100%',
-    borderWidth: 2,
-    borderColor: 'rgba(102, 126, 234, 0.3)',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#ffffff',
-    textAlign: 'center',
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    textShadowColor: 'rgba(102, 126, 234, 0.8)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
-    textAlign: 'center',
-    letterSpacing: 0.3,
-  },
-  scoreSection: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-    backgroundColor: 'rgba(243, 156, 18, 0.1)',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(243, 156, 18, 0.2)',
-  },
-  scoreIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(243, 156, 18, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  scoreLabel: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: 4,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  scoreValue: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: '#f39c12',
-    marginBottom: 8,
-    letterSpacing: 1,
-    textShadowColor: 'rgba(243, 156, 18, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  scoreMessage: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    textAlign: 'center',
-  },
-  messageSection: {
-    marginBottom: 32,
-    paddingHorizontal: 16,
-  },
-  encouragementText: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    lineHeight: 24,
-    letterSpacing: 0.2,
-  },
-  buttonSection: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  restartButton: {
-    backgroundColor: '#667eea',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 24,
-    shadowColor: '#667eea',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  restartButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginLeft: 8,
-    letterSpacing: 0.5,
-  },
-  statsPreview: {
-    alignItems: 'center',
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginLeft: 8,
-    letterSpacing: 0.2,
-  },
-  trophyIcon: {
-    fontSize: 32,
-    textAlign: 'center',
-  },
-  targetIcon: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});

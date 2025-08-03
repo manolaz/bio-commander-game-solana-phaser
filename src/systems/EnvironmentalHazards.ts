@@ -58,11 +58,13 @@ export class EnvironmentalHazard extends Physics.Arcade.Sprite {
         const width = this.config.width || 32;
         const height = this.config.height || 32;
         
-        this.body.setSize(width, height);
-        this.body.setOffset(-width / 2, -height / 2);
-        
-        // Make it immovable
-        this.body.setImmovable(true);
+        if (this.body) {
+            this.body.setSize(width, height);
+            this.body.setOffset(-width / 2, -height / 2);
+            
+            // Make it immovable
+            this.body.immovable = true;
+        }
     }
 
     private createVisualEffect(): void {
