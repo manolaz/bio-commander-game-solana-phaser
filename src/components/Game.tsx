@@ -139,7 +139,7 @@ const Game: React.FC<GameProps> = ({ selectedZone = 'heart' }) => {
                 <div id="game-container" className="border-4 border-blue-500 rounded-lg shadow-2xl"></div>
             </div>
         </div>
-    )
+    );
 }
 
 

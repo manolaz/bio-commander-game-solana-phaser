@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 interface MusicControlProps {
   isPlaying: boolean;
@@ -28,10 +27,15 @@ export const MusicControl: React.FC<MusicControlProps> = ({
   };
 
   const getVolumeIcon = () => {
-    if (volume === 0) return 'volume-mute';
-    if (volume <= 0.3) return 'volume-low';
-    if (volume <= 0.6) return 'volume-medium';
-    return 'volume-high';
+    if (volume === 0) return '🔇';
+    if (volume <= 0.3) return '🔈';
+    if (volume <= 0.6) return '🔉';
+    return '🔊';
+  };
+
+  const getPlayIcon = () => {
+    if (isLoading) return '⏳';
+    return isPlaying ? '⏸️' : '▶️';
   };
 
   return (
@@ -41,11 +45,7 @@ export const MusicControl: React.FC<MusicControlProps> = ({
         onPress={onTogglePlay}
         disabled={isLoading}
       >
-        <Ionicons
-          name={isLoading ? 'hourglass' : isPlaying ? 'pause' : 'play'}
-          size={20}
-          color="#ffffff"
-        />
+        <Text style={styles.iconText}>{getPlayIcon()}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -53,22 +53,14 @@ export const MusicControl: React.FC<MusicControlProps> = ({
         onPress={onNextTrack}
         disabled={isLoading}
       >
-        <Ionicons
-          name="skip-forward"
-          size={20}
-          color="#ffffff"
-        />
+        <Text style={styles.iconText}>⏭️</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
         onPress={handleVolumeChange}
       >
-        <Ionicons
-          name={getVolumeIcon()}
-          size={20}
-          color="#ffffff"
-        />
+        <Text style={styles.iconText}>{getVolumeIcon()}</Text>
       </TouchableOpacity>
 
       {isLoading && (
@@ -103,5 +95,10 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 12,
     marginLeft: 8,
+  },
+  iconText: {
+    fontSize: 18,
+    color: '#ffffff',
+    textAlign: 'center',
   },
 }); 
